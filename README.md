@@ -1,6 +1,6 @@
 # Mondrian Code
 
-A writing system in Piet Mondrian's five colours. Write any text in ten scripts (v5): Latin script (English, German, Swiss German, French, Italian, Spanish, Portuguese, Dutch, Danish, Norwegian, Swedish, Finnish…), Cyrillic (Russian, Ukrainian, Belarusian, Bulgarian, Serbian, Macedonian), Chinese, Korean, Japanese kana, Arabic, Hebrew, Greek, Hindi (Devanagari) or Ge'ez (Amharic). African Latin-script languages (Swahili, Yoruba, Hausa, Igbo, Wolof, Lingala…) are covered too. The text becomes a painting (square, landscape or portrait; plain grid or Mondrian blocks), and every painting reads back.
+A writing system in Piet Mondrian's five colours. Write any text in ten scripts (v6): Latin script (English, German, Swiss German, French, Italian, Spanish, Portuguese, Dutch, Danish, Norwegian, Swedish, Finnish…), Cyrillic (Russian, Ukrainian, Belarusian, Bulgarian, Serbian, Macedonian), Chinese, Korean, Japanese kana, Arabic, Hebrew, Greek, Hindi (Devanagari) or Ge'ez (Amharic). African Latin-script languages (Swahili, Yoruba, Hausa, Igbo, Wolof, Lingala…) are covered too. The text becomes a painting (square, landscape or portrait; a Mondrian-style Composition, Mondrian blocks or a plain grid), and every painting reads back.
 
 **Try it:** https://nickgushchin.github.io/mondrian-code/
 
@@ -16,6 +16,7 @@ A writing system in Piet Mondrian's five colours. Write any text in ten scripts 
 6. **Direction key:** 8 colour cells in a row: R Y B R Y fixed + 3 script cells (27 slots; Latin BRR, Cyrillic BRY, Chinese BRB, Korean RRR, Japanese RRY, Arabic RRB, Hebrew RYR, Greek RYY, Hindi RYB, Ge'ez RBR). v3 paintings read unchanged. No character is longer than 7 cells, so the run never occurs in text. It starts at cell F(n) mod n² (Fibonacci, n = grid side) in reading order; a W × H rectangle uses F(longer side) mod W·H, the same rule for squares, so square paintings are unchanged from v4; the reader tries all four directions and keeps the one with the key in place, which also gives the script.
 7. **Escape:** any other Unicode character is written as an escape code plus its code point in two 6-cell parts.
 8. **Mondrian blocks (v5):** a rendering style, not a new code. Touching cells of the same colour are drawn as one rectangle without the black lines between them (the run-length encoding idea). Each same-colour area is split into rectangles, largest first, so an L-shape becomes two blocks. The reader still samples every cell centre, so block paintings read back like grid paintings.
+9. **Composition (v6, the default style):** about 60% white (70% with *White space: More*) in 2–4 reserved white rectangles, crossed by 2–5 black lines of varied thickness that run edge to edge or up to another line, no thick frame. The rectangles are reserved before the text is laid out; the text flows around them in reading order and a letter is never split (white fillers are added at a character boundary until the next letter fits). **The white rectangles are fillers** (each reserved cell follows a marker, rule 4), so the reader needed no change. **The lines are decoration on the lattice:** they lie on cell borders, are at most about a third of a cell thick, never touch a cell centre, and are chosen from the code itself, so the same text always paints the same. Short texts look most like Mondrian; long texts stop growing at 40 cells a side and stay colour-dense. The lines carry no data here; a "true" Mondrian where the lines themselves carry the text is a separate research track.
 
 **Chinese:** the 3,249 most frequent characters (Jun Da, Modern Chinese corpus; 99.4% of text) in 1 to 7 cells.
 
@@ -43,7 +44,7 @@ English letters average 1.89 colour cells (vs 3 fixed-length); with the marker 2
 | Binary Huffman (ZIP-style) | 2 | 4.20 | 99% |
 | Fixed ternary (3 trits) | 3 | 3 | 88% |
 | Ternary Huffman, no separators | 3 | 2.70 | 97% |
-| **Mondrian Code v5** | 5 | **2.89** | 62% |
+| **Mondrian Code v6** | 5 | **2.89** | 62% |
 
 Fewest squares of any eye-readable code (31% fewer than binary Huffman); the white/black markers cost information efficiency but make letters visible and recoverable. Spaces are free (inside the black marker).
 

@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mondrian Code: write any text in red, yellow and blue</title>
-<meta name="description" content="A ternary writing system in Mondrian's colours. Encode human text into a colour painting (square, landscape or portrait, grid or Mondrian blocks) and decode it back.">
+<meta name="description" content="A ternary writing system in Mondrian's colours. Encode human text into a colour painting (square, landscape or portrait; a Mondrian-style composition, Mondrian blocks or a plain grid) and decode it back.">
 <style>
   :root { --r:#DD2222; --y:#FAC901; --b:#225095; --k:#141414; --w:#ffffff; --line:6px; }
   * { box-sizing: border-box; }
@@ -62,6 +62,7 @@
   .ex { border: var(--line) solid var(--k); padding: 14px; display:flex; flex-direction:column; align-items:center; text-align:center; }
   .ex-tag { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color:#555; margin-bottom: 10px; }
   .ex-img { width: 100%; max-width: 220px; margin: 0; }
+  canvas.comp { box-shadow: 0 0 0 1px #d6d1c3; }   /* Composition paintings have no frame */
   .ex.wide { grid-column: 1 / -1; } .ex.wide .ex-img { max-width: 560px; }
   .ex-arrow { font-size: 14px; color:#555; margin: 10px 0; }
   .ex-text { font-size: 20px; font-weight: 800; letter-spacing: .5px; }
@@ -177,6 +178,12 @@
     <div class="ex-arrow">↓ same-colour neighbours merge</div>
     <canvas class="ex-img" data-text="Hello Mondrian" data-style="blocks"></canvas>
   </div>
+  <div class="ex">
+    <div class="ex-tag">Text → painting, Composition</div>
+    <div class="ex-text">HELLO MONDRIAN</div>
+    <div class="ex-arrow">↓ white rectangles, long black lines</div>
+    <canvas class="ex-img" data-text="Hello Mondrian" data-style="composition"></canvas>
+  </div>
   <div class="ex wide">
     <div class="ex-tag">Text → painting, landscape blocks</div>
     <div class="ex-text">COMPOSITION WITH RED, YELLOW AND BLUE</div>
@@ -205,7 +212,9 @@
     <div><label class="muted" for="enc-fmt">Format</label>
       <select id="enc-fmt"><option value="square" selected>Square</option><option value="landscape">Landscape (3:2)</option><option value="portrait">Portrait (2:3)</option></select></div>
     <div><label class="muted" for="enc-style">Style</label>
-      <select id="enc-style"><option value="blocks" selected>Mondrian blocks</option><option value="grid">Grid</option></select></div>
+      <select id="enc-style"><option value="composition" selected>Composition</option><option value="blocks">Mondrian blocks</option><option value="grid">Grid</option></select></div>
+    <div><label class="muted" for="enc-white">White space (Composition)</label>
+      <select id="enc-white"><option value="normal" selected>Normal (about 60%)</option><option value="more">More (about 70%)</option></select></div>
   </div>
   <button id="enc-go">Paint it</button>
   <a class="btn ghost" id="enc-dl" href="#">Download PNG</a>
@@ -246,7 +255,8 @@
 <p><b>5. Four reading directions.</b> A painting can be written left to right, right to left, top to bottom or bottom to top: row by row, or column by column, in any of the three formats. A text can also be written as a single <b>line</b>, read left to right: the same cells without the square and without the key, handy for signatures, borders and banners.</p>
 <p><b>6. A direction key tells the reader which way, and which script.</b> Every painting carries one key: <b>8 colour cells in a row</b>. No character is longer than 7 cells, so this run can never appear inside text, and the key is always unique. The first 5 cells are fixed (<span class="sw R"></span><span class="sw Y"></span><span class="sw B"></span><span class="sw R"></span><span class="sw Y"></span>); the last 3 name the script, which gives 3 × 3 × 3 = <b>27 script slots</b> (10 in use, listed in the alphabet below). Its place is fixed by the <b>Fibonacci sequence</b>: in a grid of side <i>n</i>, the key starts at cell F(<i>n</i>) mod <i>n</i>², counted in reading order (6 × 6 → cell 8, 8 × 8 → cell 21, 9 × 9 → cell 34). A rectangle uses its longer side: in a <i>W</i> × <i>H</i> grid the key starts at F(longer side) mod <i>W</i>·<i>H</i> (9 × 6 → cell 34), which is the same rule for a square, so every square painting is unchanged. The reader tries all four directions and keeps the one where the key sits exactly at its Fibonacci cell. That also tells it the script, so nobody has to say which language a painting is in. Right-to-left scripts such as Hebrew and Arabic simply use the ← direction.</p>
 <p><b>7. Any other character still fits.</b> A special escape code is followed by the character's Unicode number in two 6-cell parts, so emoji and rare characters survive too.</p>
-<p><b>8. Mondrian blocks: neighbours of one colour merge.</b> In the blocks style, cells of the same colour that touch are drawn as one larger rectangle, without the black lines between them, so the painting looks like a real Mondrian. It is the idea of <b>run-length encoding</b> (RLE) in compression: a run of identical values is stored once, as one block. Each same-colour area is split into rectangles, largest first, so an L-shaped area becomes two blocks with a line between them. Only the picture changes: the cells underneath are the same, and the reader still samples the centre of every cell.</p>
+<p><b>8. Mondrian blocks: neighbours of one colour merge.</b> In the blocks style, cells of the same colour that touch are drawn as one larger rectangle, without the black lines between them, so the painting looks more like a Mondrian. It is the idea of <b>run-length encoding</b> (RLE) in compression: a run of identical values is stored once, as one block. Each same-colour area is split into rectangles, largest first, so an L-shaped area becomes two blocks with a line between them. Only the picture changes: the cells underneath are the same, and the reader still samples the centre of every cell.</p>
+<p><b>9. Composition: white rectangles and long black lines.</b> Mondrian's own canvases are mostly off-white, with a few colour planes and black lines of different thickness that run across the whole picture. The Composition style (the default) gets closer to that. Before the text is laid out, the encoder reserves 2 to 4 white rectangles of different sizes and makes the grid big enough that about 60% of the cells are white (70% with <i>White space: More</i>). The text then flows around the rectangles in reading order, and a letter is never split: if the next letter does not fit before a reserved cell, white fillers are added until it does. <b>The white rectangles are fillers</b>: each reserved cell follows a marker, so by rule 4 the reader skips it, and nothing in the reader had to change. Then 2 to 5 black lines run along cell borders, edge to edge or up to another line, some thick and some thin, mostly along the edges of the white rectangles. <b>The lines are decoration on the lattice</b>: they sit on cell borders, are never thicker than about a third of a cell, and never touch a cell centre, where the reader looks. They are chosen from the code itself, so the same text always paints the same way. Like most Mondrians, the picture has no thick frame. Short texts look most like Mondrian; long texts stop growing at 40 cells a side and stay colour-dense. To be clear, the lines carry no data here. A “true” Mondrian, where the position and thickness of the lines themselves would carry the text, is a separate research track.</p>
 
 <h2 class="y">Where the ideas come from</h2>
 <p>Nothing here is new on its own. Each rule borrows one idea that already runs the digital world, which is what makes the code a good teaching tool.</p>
@@ -275,7 +285,7 @@
   <tr><td>Fixed ternary, 3 trits</td><td>3</td><td>3</td><td>4.75 bits</td><td>88%</td></tr>
   <tr><td>Ternary Huffman, no separators</td><td>3</td><td>2.70</td><td>4.28 bits</td><td>97%</td></tr>
   <!-- <tr><td>Mondrian Code v1 (3 cells + marker)</td><td>5</td><td>4</td><td>9.29 bits</td><td>45%</td></tr> -->
-  <tr><td><b>Mondrian Code v5</b> (1.89 colour cells + marker)</td><td>5</td><td><b>2.89</b></td><td>6.71 bits</td><td>62%</td></tr>
+  <tr><td><b>Mondrian Code v6</b> (1.89 colour cells + marker)</td><td>5</td><td><b>2.89</b></td><td>6.71 bits</td><td>62%</td></tr>
 </table></div>
 <p><b>What the numbers say.</b> Mondrian Code needs the <b>fewest squares</b> of any code here that a person can read by eye: 2.89 per letter, against 4.20 bits for the best binary Huffman code (31% fewer) and 8 for ASCII (64% fewer). That is the advantage of three colours over two. But each square can show 5 states, and the white and black markers use part of that capacity, so in pure information terms it is about <b>62% efficient</b>, where Huffman codes reach 97–99%. The markers are what you pay for being able to see where every letter ends and to recover after a misread cell. In real text the gap narrows: about one character in six is a space, which binary codes must store and Mondrian Code gets free inside the black marker.</p>
 
@@ -314,7 +324,7 @@
 </details>
 </main>
 <footer>
-  <span>Mondrian Code v5 · designed by <a href="https://nickgushchin.github.io">Nick Gushchin</a> · October 2026</span>
+  <span>Mondrian Code v6 · designed by <a href="https://nickgushchin.github.io">Nick Gushchin</a> · October 2026</span>
   <a class="ghfoot" href="https://github.com/nickgushchin/mondrian-code"><svg class="gh" viewBox="0 0 16 16" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg> github.com/nickgushchin/mondrian-code</a>
 </footer>
 
@@ -471,8 +481,135 @@ function blocks(grid, W, H) {        // Mondrian blocks: cover each single-colou
   }
   return out;
 }
+// ---- v6 Composition: reserved white rectangles + long black lines ----------
+// Render and layout only: the code is unchanged. Reserved cells are white fillers that always follow a marker,
+// so the reader skips them; the lines run along cell borders and never touch a cell centre.
+const hash = s => { let h = 2166136261; for (const ch of s) { h ^= ch.codePointAt(0); h = Math.imul(h, 16777619) >>> 0; } return h; };
+const prng = seed => () => { seed = (seed + 0x6D2B79F5) >>> 0; let t = seed; t = Math.imul(t ^ t >>> 15, t | 1); t ^= t + Math.imul(t ^ t >>> 7, t | 61); return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+const WHITE_SPACE = { normal: 0.6, more: 0.7 }, PAPER = '#F4F1E8';
+function layout(us, lang, W, H, dir, res, gaps = {}) {     // characters in reading order; a character never straddles a reserved cell or the key; gaps[i] = white run before character i
+  const n = W*H, o = order(W, H, dir), p = keyPos(W, H), seq = new Array(n).fill('W');
+  for (let i = p; i < p+8; i++) if (res[o[i]]) return null;
+  [...KEY, ...KEY_SCRIPT[lang]].forEach((c,j) => seq[p+j] = c);
+  const free = i => !res[o[i]] && (i < p || i >= p+8);
+  let pos = 0;
+  for (const [ui, u] of us.entries()) {
+    pos += gaps[ui] || 0;          // a run of fillers at a character boundary
+    for (;;) {
+      if (pos + u.length > n) return null;
+      let j = 0; while (j < u.length && free(pos+j)) j++;
+      if (j === u.length) break;
+      pos += j + 1;                 // skip past the blocked cell; the skipped cells stay white fillers (they follow a marker)
+    }
+    u.forEach((c,j) => seq[pos+j] = c); pos += u.length;
+  }
+  const grid = new Array(n); o.forEach((g,i) => grid[g] = seq[i]);
+  grid.end = pos;
+  return grid;
+}
+function makeRects(W, H, area, R, avoid) {     // 2–4 white rectangles of varied size, a band of cells between them
+  const m = W*H < 30 ? 2 : 2 + Math.floor(R()*3), wts = [2.6 + 1.6*R()];
+  for (let i = 1; i < m; i++) wts.push(0.5 + 1.2*R());
+  const tot = wts.reduce((a,b) => a+b, 0), rects = [];
+  const clash = (c, r, w, h) => { for (let y = r; y < r+h; y++) for (let x = c; x < c+w; x++) if (avoid.has(y*W+x)) return true;
+    return rects.some(q => c < q.c+q.w+1 && q.c < c+w+1 && r < q.r+q.h+1 && q.r < r+h+1); };
+  for (const wt of wts) {
+    const a = Math.max(2, Math.round(area * wt / tot)), asp = Math.exp((R()-0.5)*1.6);
+    let w = Math.max(1, Math.min(W-2, Math.round(Math.sqrt(a*asp)))), h = Math.max(1, Math.min(H-2, Math.round(a / w)));
+    if (W >= 5 && H >= 5) { w = Math.max(2, w); h = Math.max(2, h); }
+    for (let tries = 0; w > 0 && h > 0; tries++) {
+      let done = false;
+      for (let t = 0; t < 40 && !done; t++) {
+        let c = Math.floor(R()*(W-w+1)), r = Math.floor(R()*(H-h+1));
+        if (R() < 0.5) c = R() < 0.5 ? 0 : W-w;     // Mondrian planes often run off the edge
+        if (R() < 0.4) r = R() < 0.5 ? 0 : H-h;
+        if (!clash(c, r, w, h)) { rects.push({ c, r, w, h }); done = true; }
+      }
+      if (done) break;
+      if (w*h <= 2) break;
+      if (w >= h) w--; else h--;
+    }
+  }
+  return rects;
+}
+function compose(cells, lang, dir = 'LR', fmt = 'square', space = 'normal') {   // the Composition layout: smallest grid with the white share, then reserved rectangles
+  const us = []; for (let s = 0, i = 0; i < cells.length; i++) if (cells[i] === 'W' || cells[i] === 'K') { us.push(cells.slice(s, i+1)); s = i+1; }
+  const ink = cells.filter(c => c !== 'W').length + 8, seed = hash(cells.join('') + lang), target = WHITE_SPACE[space] || WHITE_SPACE.normal;
+  for (let k = fmt === 'square' ? Math.max(3, Math.ceil(Math.sqrt(cells.length + 8))) : 2; ; k++) {
+    const [W, H] = shapeOf(fmt, k), n = W*H;
+    if (n < cells.length + 8) continue;
+    if (n*(1 - target) < ink && Math.max(W, H) < 40) continue;    // long texts stop growing at side 40 and stay colour-dense
+    const o = order(W, H, dir), p = keyPos(W, H), avoid = new Set(o.slice(p, p+8));
+    const area0 = n - cells.length - 8 - Math.ceil(0.15*cells.length) - 2;
+    const out = (grid, rects) => ({ grid, W, H, side: W, keyAt: p, rects, pad: grid.filter(c => c === 'W').length - cells.filter(c => c === 'W').length,
+      white: grid.filter(c => c === 'W').length / n });
+    let best = null;     // 3 rectangle sets per size step, 6 steps; keep the layout that spreads colour widest with the most contiguous white
+    for (let a = 0; a < 18 && area0 >= 4; a++) {
+      const R = prng(seed + k*7919 + a*104729), rects = makeRects(W, H, Math.floor(area0 * (1 - Math.floor(a/3)*0.1)), R, avoid);
+      const res = new Uint8Array(n); rects.forEach(q => { for (let y = q.r; y < q.r+q.h; y++) for (let x = q.c; x < q.c+q.w; x++) res[y*W+x] = 1; });
+      const grid = layout(us, lang, W, H, dir, res); if (!grid) continue;
+      let tail = 0; for (let i = grid.end; i < n; i++) if (!res[o[i]] && (i < p || i >= p+8)) tail++;
+      const nG = Math.min(3, us.length), cands = [grid], g0 = layout(us, lang, W, H, dir, res, { 0: p });   // g0: all text after the key
+      if (g0) cands.push(g0);    // the leftover white as a few runs (the first may open the grid), not one block at the end
+      for (const f of [0.85, 0.5, 0.25]) if (tail >= 2*nG) {
+        const gaps = {}; for (let j = 0; j < nG; j++) gaps[Math.round(j*us.length/nG)] = Math.floor(tail*f/nG);
+        const g2 = layout(us, lang, W, H, dir, res, gaps); if (g2) cands.push(g2);
+      }
+      for (const g of cands) {   // score: how widely the colour spreads over rows and columns
+        const rs = new Set(), cs = new Set(); g.forEach((c, i) => { if (c !== 'W') { rs.add(Math.floor(i/W)); cs.add(i%W); } });
+        const sc = rs.size/H + cs.size/W + 0.2*g.end/n + 0.5*res.reduce((x, y) => x + y, 0)/area0;
+        if (!best || sc > best.sc) best = { grid: g, rects, sc };
+      }
+    }
+    if (best) return out(best.grid, best.rects);
+    const grid = layout(us, lang, W, H, dir, new Uint8Array(n)); if (grid) return out(grid, []);
+  }
+}
+function compLines(grid, W, H) {     // 2–5 long lines along the edges of the big white areas, varied thickness, from the code itself
+  const R = prng(hash(grid.join('') + W)), cand = [], lines = [];
+  blocks(grid, W, H).filter(b => b.col === 'W' && b.w >= 2 && b.h >= 2 && b.w*b.h >= Math.max(4, W*H/30)).forEach((b, k) => {
+    if (b.r > 0) cand.push({ v: false, at: b.r, a: b.c, b: b.c+b.w, k });
+    if (b.r+b.h < H) cand.push({ v: false, at: b.r+b.h, a: b.c, b: b.c+b.w, k });
+    if (b.c > 0) cand.push({ v: true, at: b.c, a: b.r, b: b.r+b.h, k });
+    if (b.c+b.w < W) cand.push({ v: true, at: b.c+b.w, a: b.r, b: b.r+b.h, k });
+  });
+  for (let i = 0; cand.length < 2 && i < 2; i++) { const v = i === 1, N = v ? W : H;   // no big white area: two lattice lines
+    if (N > 2) cand.push({ v, at: 1 + Math.floor(R()*(N-1)), a: 0, b: v ? H : W, k: 9 }); }
+  cand.forEach(c => c.w = c.k + 2.5*R());
+  cand.sort((x, y) => x.w - y.w);
+  const m = Math.min(3 + Math.floor(R()*3), cand.length);
+  for (const c of cand) { if (lines.length >= m) break;
+    if (lines.some(l => l.v === c.v && Math.abs(l.at - c.at) < 1)) continue;
+    if (lines.length === m-1 && lines.every(l => l.v === c.v) && cand.some(d => d.v !== c.v)) continue;   // both directions
+    lines.push({ ...c }); }
+  const rest = [0.3, 0.26, 0.22, 0.18];     // first line thickest (0.34 of a cell), the rest shuffled (Fisher–Yates, same in every browser)
+  for (let i = rest.length - 1; i > 0; i--) { const j = Math.floor(R()*(i+1)); [rest[i], rest[j]] = [rest[j], rest[i]]; }
+  lines.forEach((l, i) => {
+    l.t = i === 0 ? 0.34 : rest[i-1];
+    if (i === 0) { l.a = 0; l.b = l.v ? H : W; return; }
+    const N = l.v ? H : W, cross = lines.slice(0, i).filter(q => q.v !== l.v && q.a <= l.at && l.at <= q.b).map(q => q.at);
+    const lo = cross.filter(x => x <= l.a), hi = cross.filter(x => x >= l.b);     // run to the next line or to the edge
+    l.a = lo.length && R() < 0.6 ? Math.max(...lo) : 0;
+    l.b = hi.length && R() < 0.6 ? Math.min(...hi) : N;
+  });
+  return lines;
+}
 function paint(canvas, grid, W, H, S, style = 'grid') {
   if (S === undefined) { S = H; H = W; }   // v4 call: paint(canvas, grid, side, S)
+  if (style === 'composition') {     // no frame: cells are S wide, lines are centred on cell borders
+    canvas.width = W*S; canvas.height = H*S;
+    const g = canvas.getContext('2d'), L = Math.max(2, Math.round(S / 12));
+    g.fillStyle = PAPER; g.fillRect(0, 0, W*S, H*S);
+    const bl = blocks(grid, W, H).filter(b => b.col !== 'W');
+    bl.forEach(b => { g.fillStyle = COL[b.col]; g.fillRect(b.c*S, b.r*S, b.w*S, b.h*S); });
+    g.fillStyle = COL.K;
+    const bar = (v, at, a, b, t, x = t) => { const o = at*S - (t >> 1), s = Math.max(0, a*S - (x >> 1)), e = Math.min((v ? H : W)*S, b*S + x - (x >> 1));   // x: overhang that closes corners
+      if (v) g.fillRect(o, s, t, e - s); else g.fillRect(s, o, e - s, t); };
+    bl.forEach(b => { if (b.r > 0) bar(false, b.r, b.c, b.c+b.w, L); if (b.r+b.h < H) bar(false, b.r+b.h, b.c, b.c+b.w, L);
+      if (b.c > 0) bar(true, b.c, b.r, b.r+b.h, L); if (b.c+b.w < W) bar(true, b.c+b.w, b.r, b.r+b.h, L); });
+    compLines(grid, W, H).forEach(l => bar(l.v, l.at, l.a, l.b, Math.max(L+1, Math.round(l.t*S)), L));   // long lines stop flush on the line they meet
+    return;
+  }
   const L = Math.max(3, Math.round(S / (style === 'blocks' ? 9 : 13)));   // blocks get bolder lines
   canvas.width = W*S + L; canvas.height = H*S + L;
   const g = canvas.getContext('2d');
@@ -620,11 +757,15 @@ function savePng(e) {
 function runEncode() {
   const { cells, lang, skipped } = encode($('enc-in').value, $('enc-lang').value || undefined);
   if (!cells.length) { $('enc-info').textContent = 'Type some text first.'; return; }
-  const { grid, W, H, pad, keyAt } = square(cells, lang, $('enc-dir').value, $('enc-fmt').value);
-  paint($('enc-canvas'), grid, W, H, +$('enc-cell').value, $('enc-style').value);
+  const style = $('enc-style').value, comp = style === 'composition';
+  const { grid, W, H, pad, keyAt, rects } = comp ? compose(cells, lang, $('enc-dir').value, $('enc-fmt').value, $('enc-white').value) : square(cells, lang, $('enc-dir').value, $('enc-fmt').value);
+  paint($('enc-canvas'), grid, W, H, +$('enc-cell').value, style);
+  $('enc-canvas').classList.toggle('comp', comp);
+  const white = Math.round(100 * grid.filter(c => c === 'W').length / grid.length);
   prepPng('enc-dl', $('enc-canvas'), 'mondrian-code.png');
-  $('enc-info').innerHTML = `${SCRIPT[lang]} · ${DIRS[$('enc-dir').value].toLowerCase()} · ${cells.length} text cells + 8 key cells (at cell ${keyAt}) + ${pad} empty = ${W} × ${H}` +
-    ($('enc-style').value === 'blocks' ? ` · ${blocks(grid, W, H).length} blocks` : '') +
+  $('enc-info').innerHTML = `${SCRIPT[lang]} · ${DIRS[$('enc-dir').value].toLowerCase()} · ${cells.length} text cells + 8 key cells (at cell ${keyAt}) + ${pad} empty = ${W} × ${H} · ${white}% white` +
+    (comp ? ` · ${rects.length} white rectangles, ${compLines(grid, W, H).length} long lines` : '') +
+    (style === 'blocks' ? ` · ${blocks(grid, W, H).length} blocks` : '') +
     (skipped.length ? ` · <span class="warn">skipped: ${skipped.join(' ')}</span>` : '');
   $('enc-str').textContent = codeString(grid, W, H);
   paintLine($('enc-line'), cells, 24);
@@ -641,6 +782,7 @@ function runDecode() {
     `<div class="muted" style="font-weight:400">${r.dir ? `Key found: ${SCRIPT[r.lang]}, ${r.W} × ${r.H}, read ${DIRS[r.dir].toLowerCase()}` : 'No direction key (a line or an old painting): read left to right as ' + SCRIPT[r.lang] + '; change the Script menu for another script'}</div>`;
 }
 $('enc-go').onclick = runEncode;
+['enc-cell', 'enc-dir', 'enc-fmt', 'enc-style', 'enc-white'].forEach(id => $(id).onchange = runEncode);
 $('dec-go').onclick = runDecode;
 $('enc-dl').onclick = savePng; $('enc-line-dl').onclick = savePng;
 $('dec-file').onchange = e => {
@@ -653,7 +795,8 @@ $('dec-file').onchange = e => {
 };
 fillTables(); runEncode();
 document.querySelectorAll('.ex-img').forEach(cv => { const { cells, lang } = encode(cv.dataset.text);
-  const { grid, W, H } = square(cells, lang, cv.dataset.dir || 'LR', cv.dataset.fmt || 'square'); paint(cv, grid, W, H, 60, cv.dataset.style || 'grid'); });
+  const st = cv.dataset.style || 'grid', a = [cells, lang, cv.dataset.dir || 'LR', cv.dataset.fmt || 'square'];
+  const { grid, W, H } = st === 'composition' ? compose(...a) : square(...a); paint(cv, grid, W, H, 60, st); cv.classList.toggle('comp', st === 'composition'); });
 </script>
 </body>
 </html>
