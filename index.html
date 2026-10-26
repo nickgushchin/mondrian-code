@@ -117,6 +117,41 @@
     .card { padding: 10px; border-width: 4px; }
     .card canvas { max-height: 70vh; }
   }
+  /* v7.1 reader upload with a reading animation; your own photo in output 3 */
+  .vh { position:absolute; width:1px; height:1px; margin:-1px; padding:0; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
+  .drop { display:flex; align-items:center; gap:18px; background: var(--k); color:#fff; cursor:pointer; padding: 20px 22px; min-height: 100px; margin: 0 0 16px; position:relative; }
+  .drop:hover { background:#262626; } .drop:focus-within { outline: 4px solid var(--y); outline-offset: 3px; }
+  .drop.over { background: var(--b); outline: 4px dashed var(--y); outline-offset: -10px; }
+  .drop .ico { flex:none; width:56px; height:56px; display:grid; grid-template-columns: 34px 18px; grid-template-rows: 34px 18px; gap:4px; }
+  .drop .ico i:nth-child(1) { background: var(--r); } .drop .ico i:nth-child(2) { background: var(--y); } .drop .ico i:nth-child(3) { background: var(--b); grid-column: 1 / -1; }
+  .drop .txt { min-width:0; }
+  .drop .t1 { display:block; font-size: 21px; font-weight: 800; line-height: 1.2; }
+  .drop .t2 { display:block; font-size: 14px; color:#cfcfcf; margin-top: 4px; }
+  .drop .go { margin-left:auto; flex:none; background: var(--y); color: var(--k); font-weight: 800; font-size: 16px; padding: 12px 18px; }
+  .drop .desk { display:none; } @media (hover: hover) and (pointer: fine) { .drop .desk { display:inline; } }
+  .stage { display:grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 20px; align-items:start; border: 2px solid var(--k); padding: 14px; margin: 0 0 16px; }
+  .stage[hidden] { display:none; }
+  .thumb { position:relative; justify-self:center; line-height:0; max-width:100%; }
+  .thumb img { display:block; max-width:100%; max-height: 360px; width:auto; height:auto; box-shadow: 0 0 0 1px #d6d1c3; }
+  .thumb canvas { position:absolute; left:0; top:0; width:100%; height:100%; max-width:none; max-height:none; margin:0; pointer-events:none; }
+  .stage .read { min-width:0; }
+  .stage .lab { font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: .5px; color:#555; min-height: 1.5em; }
+  .stage .out { margin-top: 6px; font-size: 24px; font-weight: 800; }
+  .typed { font-size: 24px; font-weight: 800; word-break: break-word; margin-top: 6px; }
+  .typed:empty { display:none; }
+  .typed .cur { display:inline-block; width:.5em; height:1em; background: var(--r); vertical-align:-0.12em; margin-left:3px; }
+  .dec-opts { margin-top: 4px; }
+  .picker button.own { background: var(--k); color:#fff; font-weight: 800; font-size: 13px; line-height: 1.15; display:grid; place-items:center; text-align:center; }
+  .ownbar { display:flex; flex-wrap:wrap; gap: 8px 14px; align-items:center; margin-top: 10px; }
+  .ownbar[hidden], .seg[hidden], .note[hidden] { display:none; }
+  .upbtn { display:inline-block; background: var(--b); color:#fff; font-weight: 800; font-size: 16px; padding: 12px 18px; cursor:pointer; }
+  .upbtn:hover { background:#1b4380; } .upbtn:focus-within { outline: 3px solid var(--y); outline-offset: 2px; }
+  canvas.dragme { touch-action: none; cursor: crosshair; }
+  .note { font-size: 13px; color:#444; margin: 8px 0 0; }
+  @media (max-width: 640px) {
+    .drop { padding: 16px; gap: 14px; min-height: 92px; } .drop .go { display:none; } .drop .t1 { font-size: 19px; }
+    .stage { grid-template-columns: 1fr; padding: 10px; gap: 12px; } .thumb img { max-height: 320px; }
+  }
 </style>
 </head>
 <body>
@@ -221,6 +256,13 @@
     <canvas class="ex-img" data-text="Hello Mondrian" data-fill="hodler" data-region="figure" width="1200" height="967"></canvas>
     <p class="muted" style="margin:8px 0 0">Ferdinand Hodler (died 1918), Kunsthaus Zürich. Image: <a href="https://commons.wikimedia.org/wiki/File:Hodler_-_Baum_am_Brienzersee_vom_B%C3%B6deli_aus_-_1906.jpg">Wikimedia Commons</a>, public domain.</p>
   </div>
+  <div class="ex wide">
+    <div class="ex-tag">Text → painting fill (output 3)</div>
+    <div class="ex-text">HELLO MONDRIAN</div>
+    <div class="ex-arrow">↓ fills the four figures in Kazimir Malevich's “Sportsmen” (1930–31)</div>
+    <canvas class="ex-img" data-text="Hello Mondrian" data-fill="malsport" data-region="figure" width="1200" height="1004"></canvas>
+    <p class="muted" style="margin:8px 0 0">Kazimir Malevich (died 1935), State Russian Museum. Image: <a href="https://commons.wikimedia.org/wiki/File:%D0%A1%D0%BF%D0%BE%D1%80%D1%82%D1%81%D0%BC%D0%B5%D0%BD%D1%8B._1930-1931._%D0%93%D0%A0%D0%9C.png">Wikimedia Commons</a>, public domain.</p>
+  </div>
 </div>
 
   </div>
@@ -267,9 +309,14 @@
   </section>
   <section class="card wide" id="out-3">
     <h4><span class="n">3</span>Inside a famous painting</h4>
-    <p class="muted" style="margin:0">Public-domain works shown in <a href="https://www.kunsthaus.ch/besuch-planen/ausstellungen/ikonen/">“Ikonen”</a> at Kunsthaus Zürich. The code fills one part of the painting; the rest stays visible.</p>
+    <p class="muted" style="margin:0">Twelve public-domain paintings: six shown in <a href="https://www.kunsthaus.ch/besuch-planen/ausstellungen/ikonen/">“Ikonen”</a> at Kunsthaus Zürich, and six more by Koller, Kirchner, Monet, Gauguin and Malevich. The code fills one part of the painting; the rest stays visible. Famous modern works such as Picasso, Warhol, Magritte or Chagall are not included because they are still under copyright; you can fill your own photo instead (the last tile).</p>
     <div class="picker" id="pick" role="group" aria-label="Painting"></div>
-    <div class="seg" role="group" aria-label="Region"><button type="button" id="reg-figure" aria-pressed="true">Figure</button><button type="button" id="reg-background" aria-pressed="false">Background</button></div>
+    <div class="seg" id="reg-seg" role="group" aria-label="Region"><button type="button" id="reg-figure" aria-pressed="true">Figure</button><button type="button" id="reg-background" aria-pressed="false">Background</button></div>
+    <div class="ownbar" id="own-bar" hidden>
+      <label class="upbtn" for="own-file">Choose a photo<input type="file" id="own-file" accept="image/*" class="vh"></label>
+      <span class="muted" id="own-hint">Then drag on the photo to mark the rectangle the code fills.</span>
+    </div>
+    <p class="note" id="own-note" hidden><b>Your photo stays on your device.</b> Everything happens in this browser; nothing is uploaded anywhere. The rectangle gets a thin black frame and a white mat, so the reader below can find it in the saved PNG.</p>
     <div class="fillwrap"><canvas id="enc-fill" width="10" height="10"></canvas></div>
     <p class="credit" id="enc-fill-credit"></p>
     <p class="muted" id="enc-fill-info"></p>
@@ -293,18 +340,27 @@
 
 <h3>Read: painting → text</h3>
 <div class="tool">
-  <div class="row">
+  <label class="drop" id="dec-drop" for="dec-file">
+    <span class="ico" aria-hidden="true"><i></i><i></i><i></i></span>
+    <span class="txt"><span class="t1" id="dec-drop-t1">Upload a PNG made on this page</span>
+      <span class="t2">Painting, line, painting fill or your photo fill. Tap to choose<span class="desk">, or drop the file here</span>.</span></span>
+    <span class="go" aria-hidden="true">Choose PNG</span>
+    <input type="file" id="dec-file" accept="image/*" class="vh">
+  </label>
+  <div class="stage" id="dec-stage" hidden>
+    <div class="thumb"><img id="dec-thumb" alt="The uploaded image"><canvas id="dec-scan" aria-hidden="true"></canvas></div>
+    <div class="read"><div class="lab" id="dec-lab"></div><div class="typed" id="dec-typed" aria-hidden="true"></div><div id="dec-slot"></div></div>
+  </div>
+  <div class="row dec-opts">
     <div><label for="dec-lang"><b>Script</b> <span class="muted">(found automatically from the key)</span></label>
       <select id="dec-lang"><option value="">Automatic</option><option value="EN">Latin</option><option value="RU">Cyrillic</option><option value="ZH">Chinese</option><option value="KO">Korean</option><option value="JA">Japanese</option><option value="AR">Arabic</option><option value="HE">Hebrew</option><option value="EL">Greek</option><option value="HI">Hindi</option><option value="GZ">Ge'ez (Amharic)</option></select></div>
     <div><label for="dec-paint"><b>Read a painting fill</b> <span class="muted">(output 3)</span></label>
       <select id="dec-paint"><option value="">Automatic</option></select></div>
-    <div><label for="dec-file"><b>Upload a PNG made on this page</b> <span class="muted">(painting, line or painting fill)</span></label>
-      <input type="file" id="dec-file" accept="image/*"></div>
   </div>
   <label for="dec-in"><b>…or paste a code string</b> <span class="muted">(R Y B for colours, W white, K black)</span></label>
   <textarea id="dec-in"></textarea>
   <button id="dec-go">Read it</button>
-  <div class="out" id="dec-out"></div>
+  <div id="dec-home"><div class="out" id="dec-out" aria-live="polite"></div></div>
 </div>
 
   </div>
@@ -324,10 +380,11 @@
 <p><b>8. Mondrian blocks: neighbours of one colour merge.</b> In the blocks style, cells of the same colour that touch are drawn as one larger rectangle, without the black lines between them, so the painting looks more like a Mondrian. It is the idea of <b>run-length encoding</b> (RLE) in compression: a run of identical values is stored once, as one block. Each same-colour area is split into rectangles, largest first, so an L-shaped area becomes two blocks with a line between them. Only the picture changes: the cells underneath are the same, and the reader still samples the centre of every cell.</p>
 <p><b>9. Composition: white rectangles and long black lines.</b> Mondrian's own canvases are mostly off-white, with a few colour planes and black lines of different thickness that run across the whole picture. The Composition style (the default) gets closer to that. Before the text is laid out, the encoder reserves 2 to 4 white rectangles of different sizes and makes the grid big enough that about 60% of the cells are white (70% with <i>White space: More</i>). The text then flows around the rectangles in reading order, and a letter is never split: if the next letter does not fit before a reserved cell, white fillers are added until it does. <b>The white rectangles are fillers</b>: each reserved cell follows a marker, so by rule 4 the reader skips it, and nothing in the reader had to change. Then 2 to 5 black lines run along cell borders, edge to edge or up to another line, some thick and some thin, mostly along the edges of the white rectangles. <b>The lines are decoration on the lattice</b>: they sit on cell borders, are never thicker than about a third of a cell, and never touch a cell centre, where the reader looks. They are chosen from the code itself, so the same text always paints the same way. Like most Mondrians, the picture has no thick frame. Short texts look most like Mondrian; long texts stop growing at 40 cells a side and stay colour-dense. To be clear, the lines carry no data here. A “true” Mondrian, where the position and thickness of the lines themselves would carry the text, is a separate research track.</p>
 
-<p><b>10. Painting fills: the code inside a famous painting.</b> Output 3 lays the same cells on a square lattice over one part of a real painting, the figure or the background, and leaves the rest of the painting visible. The page stores each part as a polygon. Every lattice cell whose centre falls inside the polygon belongs to the code, read row by row from the top left (or in the reading direction you chose). The 8-cell direction key comes first, then the text, and the spare cells are white fillers, drawn as a light veil so the painting shows through. The cell size is picked automatically: the largest cell that holds the whole message. This is an art output. A stranger with only the picture could not tell where the code starts; this page can read it back because it knows the painting, the polygon and the lattice (the cell size is also in the file name). The paintings are public-domain works shown in the Kunsthaus Zürich exhibition “Ikonen”; the images come from Wikimedia Commons.</p>
+<p><b>10. Painting fills: the code inside a famous painting.</b> Output 3 lays the same cells on a square lattice over one part of a real painting, the figure or the background, and leaves the rest of the painting visible. The page stores each part as a polygon. Every lattice cell whose centre falls inside the polygon belongs to the code, read row by row from the top left (or in the reading direction you chose). The 8-cell direction key comes first, then the text, and the spare cells are white fillers, drawn as a light veil so the painting shows through. The cell size is picked automatically: the largest cell that holds the whole message. This is an art output. A stranger with only the picture could not tell where the code starts; this page can read it back because it knows the painting, the polygon and the lattice (the cell size is also in the file name). The paintings are public-domain works whose artists died more than 70 years ago: six shown in the Kunsthaus Zürich exhibition “Ikonen”, plus Rudolf Koller, Ernst Ludwig Kirchner, Claude Monet, Paul Gauguin and two figure paintings by Kazimir Malevich. The images come from Wikimedia Commons. Famous modern works (Picasso, Warhol, Magritte, Chagall) are still under copyright, so they are not on this page.</p>
+<p><b>Your own photo.</b> The last tile of output 3 takes any photo from your device, including your own picture of a famous painting. You drag a rectangle over it and the code fills a plain lattice inside it, key first, with a thin black frame and a white mat around it. Everything happens in your browser: the photo is never uploaded. Because the frame and the mat are easy to find, the reader can locate the rectangle in the saved PNG without knowing the photo; the file name also records where it is.</p>
 
 <h2 class="r">Five outputs</h2>
-<p>The encoder shows every text in five ways at once, and each one can be saved as a PNG: <b>1. Square mosaic</b>, the plain grid; <b>2. Mondrian composition</b>, with white rectangles and long black lines (or Mondrian blocks, or a grid, in three formats); <b>3. Inside a famous painting</b>, the code filling a figure or the background; <b>4. One line</b>, for borders and signatures; <b>5. Code string</b>, the same cells written as the letters R Y B W K. All five carry the same cells, so they all read back to the same text.</p>
+<p>The encoder shows every text in five ways at once, and each one can be saved as a PNG: <b>1. Square mosaic</b>, the plain grid; <b>2. Mondrian composition</b>, with white rectangles and long black lines (or Mondrian blocks, or a grid, in three formats); <b>3. Inside a famous painting</b>, the code filling a figure or the background (or a rectangle in your own photo); <b>4. One line</b>, for borders and signatures; <b>5. Code string</b>, the same cells written as the letters R Y B W K. All five carry the same cells, so they all read back to the same text.</p>
 
 <h2 class="y">Where the ideas come from</h2>
 <p>Nothing here is new on its own. Each rule borrows one idea that already runs the digital world, which is what makes the code a good teaching tool.</p>
@@ -395,7 +452,7 @@
 </details>
 </main>
 <footer>
-  <span>Mondrian Code v7 · designed by <a href="https://nickgushchin.github.io">Nick Gushchin</a> · October 2026</span>
+  <span>Mondrian Code v7.1 · designed by <a href="https://nickgushchin.github.io">Nick Gushchin</a> · October 2026</span>
   <a class="ghfoot" href="https://github.com/nickgushchin/mondrian-code"><svg class="gh" viewBox="0 0 16 16" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg> github.com/nickgushchin/mondrian-code</a>
 </footer>
 
@@ -787,10 +844,10 @@ const codeString = (cells, W, H) => {    // squares and lines stay one flat stri
 };
 
 // ---- v7 painting fills ---------------------------------------------------------
-// Public-domain paintings (Wikimedia Commons) shown in the Kunsthaus Zürich exhibition "Ikonen". Each has two regions,
+// Public-domain paintings (Wikimedia Commons): six shown in the Kunsthaus Zürich exhibition "Ikonen", six more added in v7.1. Each has two regions,
 // polygons in coordinates 0–1 of the image ("inc" rings minus "exc" rings). The code fills a square lattice clipped to the
 // region: every lattice cell whose centre lies inside, in reading order. The page knows the mask, so it can read the PNG back.
-const PAINTINGS = [{"id":"hodler","title":"Baum am Brienzersee vom Bödeli aus","artist":"Ferdinand Hodler","year":"1906","died":1918,"w":1200,"h":967,"commons":"https://commons.wikimedia.org/wiki/File:Hodler_-_Baum_am_Brienzersee_vom_B%C3%B6deli_aus_-_1906.jpg","lic":"public domain (PD-old)","where":"Kunsthaus Zürich, gift 2023","regions":{"figure":{"label":"The tree","inc":[[0.588,0.787,0.552,0.792,0.547,0.831,0.519,0.878,0.587,0.878],[0.257,0.113,0.217,0.143,0.212,0.168,0.185,0.19,0.177,0.216,0.158,0.215,0.146,0.258,0.159,0.28,0.139,0.295,0.147,0.322,0.123,0.358,0.125,0.391,0.109,0.397,0.114,0.433,0.095,0.477,0.096,0.503,0.112,0.519,0.098,0.582,0.107,0.587,0.129,0.645,0.123,0.681,0.147,0.732,0.176,0.752,0.189,0.781,0.234,0.792,0.247,0.809,0.252,0.843,0.301,0.865,0.322,0.833,0.357,0.842,0.36,0.824,0.377,0.827,0.371,0.86,0.345,0.866,0.343,0.878,0.491,0.878,0.494,0.846,0.516,0.845,0.519,0.826,0.49,0.821,0.487,0.778,0.501,0.777,0.502,0.798,0.51,0.798,0.503,0.787,0.51,0.733,0.537,0.731,0.556,0.761,0.578,0.752,0.586,0.704,0.571,0.686,0.573,0.66,0.627,0.674,0.626,0.723,0.638,0.723,0.651,0.74,0.702,0.736,0.715,0.63,0.781,0.618,0.787,0.542,0.807,0.522,0.801,0.429,0.773,0.406,0.731,0.414,0.718,0.368,0.723,0.323,0.715,0.308,0.715,0.262,0.685,0.206,0.665,0.191,0.639,0.201,0.608,0.193,0.598,0.155,0.552,0.127,0.475,0.126,0.463,0.115,0.367,0.097,0.305,0.105,0.286,0.119]],"exc":[]},"background":{"label":"Sky","inc":[[0.0,0.0,0.0,0.24,0.028,0.252,0.052,0.282,0.052,0.338,0.075,0.401,0.096,0.404,0.108,0.359,0.131,0.336,0.129,0.297,0.142,0.282,0.138,0.247,0.152,0.211,0.172,0.205,0.208,0.162,0.215,0.137,0.246,0.109,0.283,0.111,0.355,0.09,0.392,0.091,0.463,0.109,0.473,0.12,0.522,0.113,0.549,0.121,0.602,0.152,0.604,0.178,0.615,0.189,0.667,0.185,0.688,0.199,0.726,0.261,0.723,0.363,0.737,0.407,0.777,0.4,0.807,0.424,0.815,0.522,0.794,0.546,0.789,0.623,0.736,0.628,0.723,0.638,0.72,0.673,0.768,0.667,0.794,0.677,0.798,0.657,0.809,0.657,0.823,0.635,0.844,0.631,0.834,0.681,0.874,0.665,0.894,0.691,0.999,0.682,0.999,0.019,0.986,0.021,0.963,0.0]],"exc":[]}}},{"id":"mondrian","title":"Composition with Red, Blue and Yellow","artist":"Piet Mondrian","year":"1930","died":1944,"w":1190,"h":1200,"commons":"https://commons.wikimedia.org/wiki/File:Piet_Mondriaan,_1930_-_Mondrian_Composition_II_in_Red,_Blue,_and_Yellow.jpg","lic":"public domain (PD-Art)","where":"Kunsthaus Zürich, gift of Alfred Roth 1987","regions":{"figure":{"label":"Red plane","inc":[[0.252,0.006,0.994,0.006,0.994,0.712,0.252,0.712]],"exc":[]},"background":{"label":"White planes","inc":[[0.006,0.006,0.206,0.006,0.206,0.29,0.006,0.29],[0.006,0.362,0.206,0.362,0.206,0.714,0.006,0.714],[0.252,0.756,0.882,0.756,0.882,0.994,0.252,0.994],[0.93,0.756,0.994,0.756,0.994,0.846,0.93,0.846]],"exc":[]}}},{"id":"fuseli","title":"Titania liebkost Zettel mit dem Eselskopf","artist":"Johann Heinrich Füssli","year":"1793–94","died":1825,"w":961,"h":1200,"commons":"https://commons.wikimedia.org/wiki/File:Johann_Heinrich_F%C3%BCssli_-_Titania_liebkost_den_eselk%C3%B6pfigen_Bottom.jpg","lic":"public domain (PD-Art)","where":"Kunsthaus Zürich, 1941","regions":{"figure":{"label":"Titania and Bottom","inc":[[0.364,0.178,0.37,0.207,0.413,0.268,0.362,0.276,0.348,0.32,0.354,0.347,0.346,0.373,0.33,0.372,0.325,0.333,0.312,0.331,0.279,0.407,0.144,0.479,0.103,0.486,0.107,0.651,0.123,0.651,0.127,0.662,0.076,0.672,0.029,0.705,0.029,0.713,0.042,0.715,0.038,0.747,0.076,0.748,0.134,0.726,0.297,0.745,0.39,0.738,0.415,0.718,0.417,0.685,0.404,0.665,0.366,0.659,0.362,0.626,0.374,0.625,0.399,0.646,0.463,0.667,0.487,0.745,0.461,0.822,0.464,0.855,0.505,0.883,0.57,0.887,0.585,0.873,0.572,0.726,0.599,0.723,0.631,0.682,0.633,0.663,0.734,0.647,0.766,0.61,0.755,0.585,0.722,0.586,0.72,0.607,0.684,0.607,0.711,0.564,0.734,0.563,0.735,0.541,0.722,0.54,0.721,0.558,0.709,0.558,0.697,0.511,0.711,0.508,0.736,0.461,0.753,0.46,0.748,0.437,0.737,0.436,0.735,0.407,0.717,0.404,0.715,0.392,0.693,0.383,0.666,0.383,0.643,0.351,0.643,0.306,0.662,0.304,0.664,0.283,0.694,0.271,0.688,0.243,0.697,0.212,0.712,0.209,0.72,0.172,0.703,0.175,0.7,0.192,0.683,0.197,0.682,0.215,0.663,0.216,0.636,0.249,0.624,0.248,0.62,0.236,0.578,0.224,0.581,0.202,0.552,0.179,0.516,0.172,0.475,0.179,0.448,0.206,0.446,0.217,0.431,0.218,0.377,0.179]],"exc":[]},"background":{"label":"The night","inc":[[0.0,0.0,0.0,0.366,0.028,0.316,0.023,0.263,0.033,0.243,0.02,0.213,0.034,0.182,0.029,0.133,0.047,0.098,0.05,0.067,0.067,0.04,0.115,0.037,0.127,0.044,0.132,0.081,0.216,0.083,0.226,0.112,0.279,0.127,0.287,0.15,0.32,0.151,0.326,0.202,0.316,0.242,0.327,0.259,0.326,0.295,0.308,0.301,0.308,0.31,0.333,0.319,0.335,0.328,0.346,0.328,0.363,0.274,0.412,0.268,0.369,0.207,0.363,0.178,0.377,0.178,0.422,0.212,0.442,0.206,0.492,0.162,0.508,0.111,0.529,0.095,0.536,0.063,0.547,0.062,0.562,0.091,0.605,0.117,0.614,0.157,0.647,0.177,0.649,0.212,0.66,0.212,0.703,0.171,0.725,0.164,0.716,0.217,0.737,0.223,0.747,0.248,0.768,0.247,0.81,0.208,0.814,0.187,0.828,0.187,0.822,0.247,0.806,0.266,0.778,0.276,0.776,0.292,0.845,0.299,0.872,0.357,0.91,0.366,0.935,0.384,0.924,0.412,0.908,0.417,0.91,0.443,0.891,0.451,0.889,0.467,0.878,0.467,0.752,0.398,0.718,0.37,0.701,0.333,0.664,0.333,0.66,0.373,0.725,0.398,0.754,0.447,0.754,0.47,0.734,0.473,0.708,0.516,0.71,0.558,0.72,0.558,0.721,0.538,0.746,0.538,0.745,0.564,0.712,0.569,0.69,0.602,0.703,0.602,0.723,0.578,0.759,0.578,0.762,0.538,0.773,0.539,0.771,0.598,0.753,0.634,0.736,0.647,0.635,0.663,0.632,0.682,0.6,0.723,0.572,0.729,0.586,0.873,0.57,0.888,0.505,0.884,0.463,0.855,0.46,0.822,0.486,0.759,0.479,0.717,0.458,0.663,0.386,0.648,0.375,0.627,0.364,0.627,0.366,0.647,0.393,0.648,0.394,0.662,0.418,0.685,0.416,0.718,0.39,0.738,0.289,0.746,0.134,0.727,0.072,0.75,0.036,0.746,0.04,0.723,0.028,0.705,0.076,0.672,0.108,0.662,0.105,0.574,0.074,0.573,0.075,0.554,0.105,0.553,0.108,0.512,0.092,0.504,0.052,0.504,0.052,0.485,0.064,0.484,0.064,0.476,0.032,0.462,0.021,0.438,0.0,0.422,0.0,0.999,0.835,0.999,0.828,0.947,0.848,0.923,0.848,0.902,0.898,0.866,0.917,0.875,0.92,0.959,0.948,0.973,0.991,0.981,0.98,0.999,0.999,0.999,0.999,0.0]],"exc":[[0.128,0.758,0.171,0.765,0.208,0.783,0.231,0.778,0.244,0.792,0.273,0.794,0.295,0.781,0.297,0.787,0.318,0.788,0.318,0.802,0.358,0.796,0.406,0.802,0.402,0.813,0.36,0.812,0.282,0.833,0.276,0.862,0.341,0.924,0.35,0.95,0.339,0.95,0.256,0.888,0.244,0.888,0.23,0.903,0.221,0.927,0.186,0.94,0.186,0.908,0.221,0.864,0.216,0.823,0.154,0.783,0.123,0.782],[0.789,0.745,0.766,0.864,0.751,0.876,0.716,0.948,0.685,0.972,0.678,0.993,0.667,0.994,0.659,0.963,0.616,0.957,0.607,0.933,0.651,0.88,0.636,0.858,0.636,0.823,0.671,0.782,0.742,0.788,0.77,0.749],[0.898,0.072,0.914,0.073,0.925,0.086,0.958,0.087,0.958,0.098,0.931,0.117,0.924,0.194,0.908,0.192,0.875,0.131,0.874,0.091]]}}},{"id":"boecklin","title":"Der heilige Antonius predigt den Fischen","artist":"Arnold Böcklin","year":"1892","died":1901,"w":1113,"h":1200,"commons":"https://commons.wikimedia.org/wiki/File:B%C3%B6cklin_Der_Heilige_Antonius_1892.jpg","lic":"public domain (PD-Art); upper panel","where":"on view at Kunsthaus Zürich","regions":{"figure":{"label":"Saint Anthony","inc":[[0.465,0.054,0.446,0.075,0.439,0.107,0.481,0.147,0.533,0.15,0.545,0.246,0.522,0.243,0.459,0.199,0.447,0.199,0.444,0.208,0.418,0.207,0.411,0.229,0.428,0.242,0.483,0.244,0.522,0.279,0.533,0.319,0.561,0.319,0.598,0.304,0.616,0.252,0.668,0.278,0.672,0.333,0.658,0.467,0.679,0.627,0.67,0.646,0.622,0.681,0.621,0.698,0.657,0.701,0.721,0.672,0.712,0.608,0.719,0.542,0.726,0.527,0.768,0.507,0.801,0.56,0.819,0.629,0.814,0.656,0.775,0.696,0.775,0.707,0.797,0.715,0.832,0.707,0.868,0.686,0.872,0.672,0.854,0.631,0.842,0.518,0.827,0.476,0.82,0.402,0.829,0.271,0.815,0.227,0.784,0.189,0.774,0.112,0.755,0.087,0.645,0.048,0.601,0.049,0.556,0.083,0.536,0.081,0.526,0.062,0.505,0.051]],"exc":[]},"background":{"label":"Sky and sea","inc":[[0.0,0.0,0.0,0.713,0.015,0.713,0.036,0.677,0.067,0.671,0.073,0.653,0.102,0.626,0.12,0.627,0.128,0.69,0.177,0.713,0.2,0.709,0.257,0.677,0.261,0.662,0.248,0.652,0.222,0.657,0.22,0.672,0.194,0.68,0.174,0.672,0.181,0.652,0.194,0.651,0.196,0.667,0.207,0.667,0.208,0.652,0.248,0.618,0.263,0.621,0.266,0.638,0.301,0.634,0.348,0.588,0.435,0.544,0.458,0.549,0.465,0.568,0.445,0.692,0.482,0.682,0.502,0.647,0.574,0.625,0.671,0.619,0.653,0.468,0.664,0.336,0.656,0.279,0.623,0.265,0.604,0.311,0.562,0.327,0.533,0.328,0.518,0.311,0.512,0.282,0.485,0.253,0.422,0.249,0.404,0.233,0.413,0.203,0.456,0.193,0.483,0.204,0.524,0.24,0.537,0.24,0.527,0.157,0.481,0.152,0.46,0.133,0.43,0.131,0.417,0.112,0.425,0.057,0.438,0.036,0.459,0.024,0.519,0.032,0.521,0.047,0.535,0.048,0.536,0.069,0.562,0.068,0.598,0.045,0.631,0.042,0.756,0.077,0.789,0.119,0.799,0.193,0.824,0.22,0.841,0.269,0.829,0.407,0.84,0.424,0.837,0.48,0.848,0.518,0.873,0.511,0.883,0.477,0.924,0.453,0.924,0.443,0.868,0.42,0.859,0.398,0.859,0.347,0.891,0.328,0.913,0.289,0.98,0.293,0.999,0.286,0.999,0.213,0.993,0.212,0.999,0.0]],"exc":[]}}},{"id":"bonnard","title":"Signac et ses amis en barque","artist":"Pierre Bonnard","year":"about 1924","died":1947,"w":1020,"h":921,"commons":"https://commons.wikimedia.org/wiki/File:Signac_et_ses_amis_en_bateau.jpg","lic":"public domain (PD-Art)","where":"Kunsthaus Zürich, 1932","regions":{"figure":{"label":"The sail","inc":[[0.552,0.0,0.488,0.459,0.501,0.567,0.522,0.567,0.527,0.556,0.552,0.558,0.576,0.543,0.587,0.482,0.603,0.471,0.638,0.472,0.671,0.531,0.692,0.533,0.835,0.491,0.837,0.48,0.888,0.472,0.991,0.423,0.901,0.197,0.855,0.05,0.849,0.0]],"exc":[]},"background":{"label":"The sea","inc":[[0.999,0.432,0.944,0.451,0.915,0.469,0.914,0.478,0.875,0.485,0.87,0.508,0.857,0.518,0.839,0.518,0.837,0.503,0.807,0.505,0.793,0.536,0.781,0.534,0.781,0.522,0.763,0.528,0.772,0.593,0.771,0.661,0.79,0.699,0.814,0.708,0.85,0.669,0.858,0.625,0.894,0.59,0.929,0.589,0.938,0.603,0.957,0.609,0.971,0.633,0.999,0.643],[0.499,0.307,0.271,0.316,0.27,0.296,0.043,0.296,0.037,0.352,0.0,0.38,0.0,0.876,0.039,0.849,0.087,0.729,0.101,0.728,0.102,0.718,0.143,0.712,0.208,0.606,0.219,0.491,0.254,0.479,0.264,0.507,0.274,0.507,0.283,0.494,0.329,0.484,0.342,0.499,0.39,0.51,0.398,0.391,0.381,0.38,0.382,0.364,0.399,0.336,0.429,0.328,0.461,0.353,0.466,0.391,0.485,0.4,0.498,0.356]],"exc":[]}}},{"id":"vangogh","title":"La Maison du Père Pilon","artist":"Vincent van Gogh","year":"1890","died":1890,"w":1200,"h":869,"commons":"https://commons.wikimedia.org/wiki/File:Van_Gogh_-_Das_Haus_von_P%C3%A8re_Pilon.jpeg","lic":"public domain (PD-old)","where":"private collection, on loan","regions":{"figure":{"label":"The tree","inc":[[0.416,0.197,0.403,0.22,0.396,0.281,0.432,0.319,0.437,0.352,0.412,0.369,0.399,0.413,0.4,0.438,0.432,0.481,0.46,0.484,0.477,0.542,0.54,0.612,0.547,0.688,0.69,0.693,0.709,0.737,0.774,0.735,0.777,0.66,0.786,0.647,0.815,0.637,0.832,0.619,0.832,0.604,0.821,0.581,0.822,0.54,0.808,0.536,0.791,0.471,0.802,0.425,0.789,0.38,0.787,0.319,0.764,0.289,0.726,0.268,0.729,0.247,0.755,0.247,0.771,0.226,0.77,0.176,0.744,0.121,0.668,0.072,0.613,0.102,0.561,0.092,0.538,0.147,0.46,0.183,0.434,0.181]],"exc":[]},"background":{"label":"Sky","inc":[[0.022,0.0,0.021,0.115,0.069,0.129,0.081,0.141,0.089,0.23,0.124,0.336,0.141,0.417,0.173,0.417,0.198,0.386,0.229,0.405,0.258,0.403,0.272,0.382,0.323,0.402,0.391,0.395,0.428,0.343,0.428,0.326,0.39,0.285,0.389,0.245,0.398,0.24,0.398,0.217,0.433,0.172,0.466,0.17,0.536,0.143,0.564,0.081,0.614,0.096,0.662,0.064,0.7,0.078,0.757,0.129,0.774,0.179,0.773,0.243,0.812,0.247,0.838,0.22,0.865,0.22,0.88,0.283,0.925,0.307,0.937,0.353,0.956,0.384,0.958,0.412,0.999,0.415,0.999,0.0]],"exc":[]}}}];
+const PAINTINGS = [{"id":"hodler","title":"Baum am Brienzersee vom Bödeli aus","artist":"Ferdinand Hodler","year":"1906","died":1918,"w":1200,"h":967,"commons":"https://commons.wikimedia.org/wiki/File:Hodler_-_Baum_am_Brienzersee_vom_B%C3%B6deli_aus_-_1906.jpg","lic":"public domain (PD-old)","where":"Kunsthaus Zürich, gift 2023","regions":{"figure":{"label":"The tree","inc":[[0.588,0.787,0.552,0.792,0.547,0.831,0.519,0.878,0.587,0.878],[0.257,0.113,0.217,0.143,0.212,0.168,0.185,0.19,0.177,0.216,0.158,0.215,0.146,0.258,0.159,0.28,0.139,0.295,0.147,0.322,0.123,0.358,0.125,0.391,0.109,0.397,0.114,0.433,0.095,0.477,0.096,0.503,0.112,0.519,0.098,0.582,0.107,0.587,0.129,0.645,0.123,0.681,0.147,0.732,0.176,0.752,0.189,0.781,0.234,0.792,0.247,0.809,0.252,0.843,0.301,0.865,0.322,0.833,0.357,0.842,0.36,0.824,0.377,0.827,0.371,0.86,0.345,0.866,0.343,0.878,0.491,0.878,0.494,0.846,0.516,0.845,0.519,0.826,0.49,0.821,0.487,0.778,0.501,0.777,0.502,0.798,0.51,0.798,0.503,0.787,0.51,0.733,0.537,0.731,0.556,0.761,0.578,0.752,0.586,0.704,0.571,0.686,0.573,0.66,0.627,0.674,0.626,0.723,0.638,0.723,0.651,0.74,0.702,0.736,0.715,0.63,0.781,0.618,0.787,0.542,0.807,0.522,0.801,0.429,0.773,0.406,0.731,0.414,0.718,0.368,0.723,0.323,0.715,0.308,0.715,0.262,0.685,0.206,0.665,0.191,0.639,0.201,0.608,0.193,0.598,0.155,0.552,0.127,0.475,0.126,0.463,0.115,0.367,0.097,0.305,0.105,0.286,0.119]],"exc":[]},"background":{"label":"Sky","inc":[[0.0,0.0,0.0,0.24,0.028,0.252,0.052,0.282,0.052,0.338,0.075,0.401,0.096,0.404,0.108,0.359,0.131,0.336,0.129,0.297,0.142,0.282,0.138,0.247,0.152,0.211,0.172,0.205,0.208,0.162,0.215,0.137,0.246,0.109,0.283,0.111,0.355,0.09,0.392,0.091,0.463,0.109,0.473,0.12,0.522,0.113,0.549,0.121,0.602,0.152,0.604,0.178,0.615,0.189,0.667,0.185,0.688,0.199,0.726,0.261,0.723,0.363,0.737,0.407,0.777,0.4,0.807,0.424,0.815,0.522,0.794,0.546,0.789,0.623,0.736,0.628,0.723,0.638,0.72,0.673,0.768,0.667,0.794,0.677,0.798,0.657,0.809,0.657,0.823,0.635,0.844,0.631,0.834,0.681,0.874,0.665,0.894,0.691,0.999,0.682,0.999,0.019,0.986,0.021,0.963,0.0]],"exc":[]}}},{"id":"mondrian","title":"Composition with Red, Blue and Yellow","artist":"Piet Mondrian","year":"1930","died":1944,"w":1190,"h":1200,"commons":"https://commons.wikimedia.org/wiki/File:Piet_Mondriaan,_1930_-_Mondrian_Composition_II_in_Red,_Blue,_and_Yellow.jpg","lic":"public domain (PD-Art)","where":"Kunsthaus Zürich, gift of Alfred Roth 1987","regions":{"figure":{"label":"Red plane","inc":[[0.252,0.006,0.994,0.006,0.994,0.712,0.252,0.712]],"exc":[]},"background":{"label":"White planes","inc":[[0.006,0.006,0.206,0.006,0.206,0.29,0.006,0.29],[0.006,0.362,0.206,0.362,0.206,0.714,0.006,0.714],[0.252,0.756,0.882,0.756,0.882,0.994,0.252,0.994],[0.93,0.756,0.994,0.756,0.994,0.846,0.93,0.846]],"exc":[]}}},{"id":"fuseli","title":"Titania liebkost Zettel mit dem Eselskopf","artist":"Johann Heinrich Füssli","year":"1793–94","died":1825,"w":961,"h":1200,"commons":"https://commons.wikimedia.org/wiki/File:Johann_Heinrich_F%C3%BCssli_-_Titania_liebkost_den_eselk%C3%B6pfigen_Bottom.jpg","lic":"public domain (PD-Art)","where":"Kunsthaus Zürich, 1941","regions":{"figure":{"label":"Titania and Bottom","inc":[[0.364,0.178,0.37,0.207,0.413,0.268,0.362,0.276,0.348,0.32,0.354,0.347,0.346,0.373,0.33,0.372,0.325,0.333,0.312,0.331,0.279,0.407,0.144,0.479,0.103,0.486,0.107,0.651,0.123,0.651,0.127,0.662,0.076,0.672,0.029,0.705,0.029,0.713,0.042,0.715,0.038,0.747,0.076,0.748,0.134,0.726,0.297,0.745,0.39,0.738,0.415,0.718,0.417,0.685,0.404,0.665,0.366,0.659,0.362,0.626,0.374,0.625,0.399,0.646,0.463,0.667,0.487,0.745,0.461,0.822,0.464,0.855,0.505,0.883,0.57,0.887,0.585,0.873,0.572,0.726,0.599,0.723,0.631,0.682,0.633,0.663,0.734,0.647,0.766,0.61,0.755,0.585,0.722,0.586,0.72,0.607,0.684,0.607,0.711,0.564,0.734,0.563,0.735,0.541,0.722,0.54,0.721,0.558,0.709,0.558,0.697,0.511,0.711,0.508,0.736,0.461,0.753,0.46,0.748,0.437,0.737,0.436,0.735,0.407,0.717,0.404,0.715,0.392,0.693,0.383,0.666,0.383,0.643,0.351,0.643,0.306,0.662,0.304,0.664,0.283,0.694,0.271,0.688,0.243,0.697,0.212,0.712,0.209,0.72,0.172,0.703,0.175,0.7,0.192,0.683,0.197,0.682,0.215,0.663,0.216,0.636,0.249,0.624,0.248,0.62,0.236,0.578,0.224,0.581,0.202,0.552,0.179,0.516,0.172,0.475,0.179,0.448,0.206,0.446,0.217,0.431,0.218,0.377,0.179]],"exc":[]},"background":{"label":"The night","inc":[[0.0,0.0,0.0,0.366,0.028,0.316,0.023,0.263,0.033,0.243,0.02,0.213,0.034,0.182,0.029,0.133,0.047,0.098,0.05,0.067,0.067,0.04,0.115,0.037,0.127,0.044,0.132,0.081,0.216,0.083,0.226,0.112,0.279,0.127,0.287,0.15,0.32,0.151,0.326,0.202,0.316,0.242,0.327,0.259,0.326,0.295,0.308,0.301,0.308,0.31,0.333,0.319,0.335,0.328,0.346,0.328,0.363,0.274,0.412,0.268,0.369,0.207,0.363,0.178,0.377,0.178,0.422,0.212,0.442,0.206,0.492,0.162,0.508,0.111,0.529,0.095,0.536,0.063,0.547,0.062,0.562,0.091,0.605,0.117,0.614,0.157,0.647,0.177,0.649,0.212,0.66,0.212,0.703,0.171,0.725,0.164,0.716,0.217,0.737,0.223,0.747,0.248,0.768,0.247,0.81,0.208,0.814,0.187,0.828,0.187,0.822,0.247,0.806,0.266,0.778,0.276,0.776,0.292,0.845,0.299,0.872,0.357,0.91,0.366,0.935,0.384,0.924,0.412,0.908,0.417,0.91,0.443,0.891,0.451,0.889,0.467,0.878,0.467,0.752,0.398,0.718,0.37,0.701,0.333,0.664,0.333,0.66,0.373,0.725,0.398,0.754,0.447,0.754,0.47,0.734,0.473,0.708,0.516,0.71,0.558,0.72,0.558,0.721,0.538,0.746,0.538,0.745,0.564,0.712,0.569,0.69,0.602,0.703,0.602,0.723,0.578,0.759,0.578,0.762,0.538,0.773,0.539,0.771,0.598,0.753,0.634,0.736,0.647,0.635,0.663,0.632,0.682,0.6,0.723,0.572,0.729,0.586,0.873,0.57,0.888,0.505,0.884,0.463,0.855,0.46,0.822,0.486,0.759,0.479,0.717,0.458,0.663,0.386,0.648,0.375,0.627,0.364,0.627,0.366,0.647,0.393,0.648,0.394,0.662,0.418,0.685,0.416,0.718,0.39,0.738,0.289,0.746,0.134,0.727,0.072,0.75,0.036,0.746,0.04,0.723,0.028,0.705,0.076,0.672,0.108,0.662,0.105,0.574,0.074,0.573,0.075,0.554,0.105,0.553,0.108,0.512,0.092,0.504,0.052,0.504,0.052,0.485,0.064,0.484,0.064,0.476,0.032,0.462,0.021,0.438,0.0,0.422,0.0,0.999,0.835,0.999,0.828,0.947,0.848,0.923,0.848,0.902,0.898,0.866,0.917,0.875,0.92,0.959,0.948,0.973,0.991,0.981,0.98,0.999,0.999,0.999,0.999,0.0]],"exc":[[0.128,0.758,0.171,0.765,0.208,0.783,0.231,0.778,0.244,0.792,0.273,0.794,0.295,0.781,0.297,0.787,0.318,0.788,0.318,0.802,0.358,0.796,0.406,0.802,0.402,0.813,0.36,0.812,0.282,0.833,0.276,0.862,0.341,0.924,0.35,0.95,0.339,0.95,0.256,0.888,0.244,0.888,0.23,0.903,0.221,0.927,0.186,0.94,0.186,0.908,0.221,0.864,0.216,0.823,0.154,0.783,0.123,0.782],[0.789,0.745,0.766,0.864,0.751,0.876,0.716,0.948,0.685,0.972,0.678,0.993,0.667,0.994,0.659,0.963,0.616,0.957,0.607,0.933,0.651,0.88,0.636,0.858,0.636,0.823,0.671,0.782,0.742,0.788,0.77,0.749],[0.898,0.072,0.914,0.073,0.925,0.086,0.958,0.087,0.958,0.098,0.931,0.117,0.924,0.194,0.908,0.192,0.875,0.131,0.874,0.091]]}}},{"id":"boecklin","title":"Der heilige Antonius predigt den Fischen","artist":"Arnold Böcklin","year":"1892","died":1901,"w":1113,"h":1200,"commons":"https://commons.wikimedia.org/wiki/File:B%C3%B6cklin_Der_Heilige_Antonius_1892.jpg","lic":"public domain (PD-Art); upper panel","where":"on view at Kunsthaus Zürich","regions":{"figure":{"label":"Saint Anthony","inc":[[0.465,0.054,0.446,0.075,0.439,0.107,0.481,0.147,0.533,0.15,0.545,0.246,0.522,0.243,0.459,0.199,0.447,0.199,0.444,0.208,0.418,0.207,0.411,0.229,0.428,0.242,0.483,0.244,0.522,0.279,0.533,0.319,0.561,0.319,0.598,0.304,0.616,0.252,0.668,0.278,0.672,0.333,0.658,0.467,0.679,0.627,0.67,0.646,0.622,0.681,0.621,0.698,0.657,0.701,0.721,0.672,0.712,0.608,0.719,0.542,0.726,0.527,0.768,0.507,0.801,0.56,0.819,0.629,0.814,0.656,0.775,0.696,0.775,0.707,0.797,0.715,0.832,0.707,0.868,0.686,0.872,0.672,0.854,0.631,0.842,0.518,0.827,0.476,0.82,0.402,0.829,0.271,0.815,0.227,0.784,0.189,0.774,0.112,0.755,0.087,0.645,0.048,0.601,0.049,0.556,0.083,0.536,0.081,0.526,0.062,0.505,0.051]],"exc":[]},"background":{"label":"Sky and sea","inc":[[0.0,0.0,0.0,0.713,0.015,0.713,0.036,0.677,0.067,0.671,0.073,0.653,0.102,0.626,0.12,0.627,0.128,0.69,0.177,0.713,0.2,0.709,0.257,0.677,0.261,0.662,0.248,0.652,0.222,0.657,0.22,0.672,0.194,0.68,0.174,0.672,0.181,0.652,0.194,0.651,0.196,0.667,0.207,0.667,0.208,0.652,0.248,0.618,0.263,0.621,0.266,0.638,0.301,0.634,0.348,0.588,0.435,0.544,0.458,0.549,0.465,0.568,0.445,0.692,0.482,0.682,0.502,0.647,0.574,0.625,0.671,0.619,0.653,0.468,0.664,0.336,0.656,0.279,0.623,0.265,0.604,0.311,0.562,0.327,0.533,0.328,0.518,0.311,0.512,0.282,0.485,0.253,0.422,0.249,0.404,0.233,0.413,0.203,0.456,0.193,0.483,0.204,0.524,0.24,0.537,0.24,0.527,0.157,0.481,0.152,0.46,0.133,0.43,0.131,0.417,0.112,0.425,0.057,0.438,0.036,0.459,0.024,0.519,0.032,0.521,0.047,0.535,0.048,0.536,0.069,0.562,0.068,0.598,0.045,0.631,0.042,0.756,0.077,0.789,0.119,0.799,0.193,0.824,0.22,0.841,0.269,0.829,0.407,0.84,0.424,0.837,0.48,0.848,0.518,0.873,0.511,0.883,0.477,0.924,0.453,0.924,0.443,0.868,0.42,0.859,0.398,0.859,0.347,0.891,0.328,0.913,0.289,0.98,0.293,0.999,0.286,0.999,0.213,0.993,0.212,0.999,0.0]],"exc":[]}}},{"id":"bonnard","title":"Signac et ses amis en barque","artist":"Pierre Bonnard","year":"about 1924","died":1947,"w":1020,"h":921,"commons":"https://commons.wikimedia.org/wiki/File:Signac_et_ses_amis_en_bateau.jpg","lic":"public domain (PD-Art)","where":"Kunsthaus Zürich, 1932","regions":{"figure":{"label":"The sail","inc":[[0.552,0.0,0.488,0.459,0.501,0.567,0.522,0.567,0.527,0.556,0.552,0.558,0.576,0.543,0.587,0.482,0.603,0.471,0.638,0.472,0.671,0.531,0.692,0.533,0.835,0.491,0.837,0.48,0.888,0.472,0.991,0.423,0.901,0.197,0.855,0.05,0.849,0.0]],"exc":[]},"background":{"label":"The sea","inc":[[0.999,0.432,0.944,0.451,0.915,0.469,0.914,0.478,0.875,0.485,0.87,0.508,0.857,0.518,0.839,0.518,0.837,0.503,0.807,0.505,0.793,0.536,0.781,0.534,0.781,0.522,0.763,0.528,0.772,0.593,0.771,0.661,0.79,0.699,0.814,0.708,0.85,0.669,0.858,0.625,0.894,0.59,0.929,0.589,0.938,0.603,0.957,0.609,0.971,0.633,0.999,0.643],[0.499,0.307,0.271,0.316,0.27,0.296,0.043,0.296,0.037,0.352,0.0,0.38,0.0,0.876,0.039,0.849,0.087,0.729,0.101,0.728,0.102,0.718,0.143,0.712,0.208,0.606,0.219,0.491,0.254,0.479,0.264,0.507,0.274,0.507,0.283,0.494,0.329,0.484,0.342,0.499,0.39,0.51,0.398,0.391,0.381,0.38,0.382,0.364,0.399,0.336,0.429,0.328,0.461,0.353,0.466,0.391,0.485,0.4,0.498,0.356]],"exc":[]}}},{"id":"vangogh","title":"La Maison du Père Pilon","artist":"Vincent van Gogh","year":"1890","died":1890,"w":1200,"h":869,"commons":"https://commons.wikimedia.org/wiki/File:Van_Gogh_-_Das_Haus_von_P%C3%A8re_Pilon.jpeg","lic":"public domain (PD-old)","where":"private collection, on loan","regions":{"figure":{"label":"The tree","inc":[[0.416,0.197,0.403,0.22,0.396,0.281,0.432,0.319,0.437,0.352,0.412,0.369,0.399,0.413,0.4,0.438,0.432,0.481,0.46,0.484,0.477,0.542,0.54,0.612,0.547,0.688,0.69,0.693,0.709,0.737,0.774,0.735,0.777,0.66,0.786,0.647,0.815,0.637,0.832,0.619,0.832,0.604,0.821,0.581,0.822,0.54,0.808,0.536,0.791,0.471,0.802,0.425,0.789,0.38,0.787,0.319,0.764,0.289,0.726,0.268,0.729,0.247,0.755,0.247,0.771,0.226,0.77,0.176,0.744,0.121,0.668,0.072,0.613,0.102,0.561,0.092,0.538,0.147,0.46,0.183,0.434,0.181]],"exc":[]},"background":{"label":"Sky","inc":[[0.022,0.0,0.021,0.115,0.069,0.129,0.081,0.141,0.089,0.23,0.124,0.336,0.141,0.417,0.173,0.417,0.198,0.386,0.229,0.405,0.258,0.403,0.272,0.382,0.323,0.402,0.391,0.395,0.428,0.343,0.428,0.326,0.39,0.285,0.389,0.245,0.398,0.24,0.398,0.217,0.433,0.172,0.466,0.17,0.536,0.143,0.564,0.081,0.614,0.096,0.662,0.064,0.7,0.078,0.757,0.129,0.774,0.179,0.773,0.243,0.812,0.247,0.838,0.22,0.865,0.22,0.88,0.283,0.925,0.307,0.937,0.353,0.956,0.384,0.958,0.412,0.999,0.415,0.999,0.0]],"exc":[]}}},{"id":"koller","title":"Hirte mit Kühen","artist":"Rudolf Koller","year":"1858","died":1905,"w":1200,"h":946,"commons":"https://commons.wikimedia.org/wiki/File:Rudolf_Koller_-_Hirte_mit_K%C3%BChen_(1858).jpg","lic":"public domain (PD-Art, PD-old)","where":"private collection, sold at Christie’s New York in 2023","regions":{"figure":{"label":"The herd","inc":[[0.595,0.784,0.57,0.765,0.541,0.773,0.529,0.786,0.505,0.784,0.48,0.801,0.469,0.844,0.502,0.854,0.537,0.88,0.568,0.878,0.583,0.843,0.582,0.805,0.595,0.795],[0.593,0.671,0.587,0.662,0.565,0.665,0.548,0.681,0.547,0.697,0.539,0.697,0.499,0.663,0.463,0.672,0.455,0.661,0.442,0.662,0.422,0.688,0.422,0.714,0.436,0.722,0.429,0.748,0.409,0.755,0.417,0.732,0.407,0.73,0.407,0.746,0.36,0.759,0.346,0.776,0.347,0.81,0.371,0.832,0.39,0.833,0.395,0.8,0.407,0.795,0.407,0.835,0.446,0.848,0.46,0.811,0.477,0.8,0.478,0.75,0.503,0.744,0.532,0.757,0.579,0.744,0.573,0.709,0.583,0.705],[0.196,0.655,0.183,0.683,0.183,0.729,0.194,0.761,0.223,0.78,0.247,0.779,0.252,0.8,0.296,0.808,0.315,0.762,0.3,0.711,0.292,0.704,0.236,0.711,0.233,0.663,0.22,0.651]],"exc":[]},"background":{"label":"Sky and mountain","inc":[[0.999,0.0,0.55,0.0,0.548,0.07,0.508,0.074,0.495,0.058,0.463,0.062,0.456,0.083,0.482,0.09,0.491,0.115,0.472,0.132,0.472,0.149,0.484,0.156,0.481,0.172,0.429,0.164,0.368,0.178,0.368,0.19,0.394,0.204,0.417,0.236,0.412,0.293,0.435,0.316,0.435,0.337,0.467,0.349,0.481,0.401,0.497,0.402,0.504,0.417,0.505,0.457,0.461,0.458,0.469,0.484,0.467,0.519,0.478,0.554,0.468,0.565,0.465,0.6,0.448,0.625,0.455,0.653,0.465,0.662,0.488,0.657,0.509,0.62,0.561,0.598,0.579,0.621,0.577,0.655,0.588,0.655,0.618,0.629,0.652,0.627,0.677,0.59,0.674,0.575,0.651,0.565,0.657,0.527,0.633,0.518,0.633,0.507,0.645,0.503,0.644,0.489,0.618,0.484,0.611,0.472,0.614,0.448,0.594,0.434,0.594,0.423,0.603,0.419,0.603,0.372,0.623,0.36,0.623,0.348,0.605,0.334,0.606,0.314,0.624,0.291,0.627,0.266,0.644,0.261,0.65,0.241,0.696,0.254,0.699,0.272,0.709,0.274,0.718,0.222,0.731,0.21,0.807,0.206,0.822,0.239,0.869,0.302,0.853,0.339,0.887,0.384,0.903,0.371,0.906,0.332,0.916,0.321,0.959,0.315,0.999,0.291]],"exc":[]}}},{"id":"kirchner","title":"Potsdamer Platz","artist":"Ernst Ludwig Kirchner","year":"1914","died":1938,"w":884,"h":1200,"commons":"https://commons.wikimedia.org/wiki/File:Kirchner_-_Potsdamer_Platz,_1914,_NG_799.jpg","lic":"public domain (PD-Art, PD-old)","where":"Neue Nationalgalerie, Berlin","regions":{"figure":{"label":"The two women","inc":[[0.468,0.017,0.457,0.017,0.445,0.034,0.428,0.035,0.413,0.048,0.411,0.084,0.388,0.077,0.391,0.048,0.359,0.045,0.345,0.079,0.317,0.08,0.285,0.094,0.203,0.147,0.173,0.141,0.165,0.161,0.097,0.168,0.081,0.178,0.086,0.255,0.073,0.283,0.09,0.321,0.122,0.328,0.117,0.388,0.124,0.448,0.169,0.513,0.155,0.66,0.155,0.791,0.166,0.819,0.146,0.844,0.119,0.859,0.119,0.868,0.135,0.873,0.181,0.857,0.188,0.882,0.2,0.882,0.206,0.839,0.227,0.831,0.279,0.835,0.304,0.85,0.312,0.963,0.339,0.963,0.348,0.933,0.371,0.932,0.378,0.902,0.389,0.902,0.399,0.915,0.421,0.915,0.389,0.841,0.386,0.798,0.409,0.775,0.439,0.775,0.459,0.66,0.478,0.659,0.504,0.631,0.48,0.531,0.483,0.273,0.435,0.24,0.466,0.169,0.484,0.158,0.459,0.102,0.49,0.099,0.49,0.087,0.471,0.085,0.471,0.067,0.49,0.053,0.491,0.038,0.471,0.037]],"exc":[]},"background":{"label":"The city","inc":[[0.0,0.0,0.0,0.999,0.999,0.999,0.999,0.0]],"exc":[[0.473,0.012,0.475,0.034,0.497,0.037,0.481,0.069,0.504,0.069,0.506,0.083,0.491,0.102,0.467,0.104,0.488,0.16,0.471,0.169,0.439,0.238,0.488,0.273,0.483,0.529,0.508,0.632,0.481,0.662,0.463,0.662,0.442,0.777,0.412,0.777,0.389,0.8,0.393,0.839,0.425,0.917,0.397,0.917,0.379,0.909,0.373,0.936,0.351,0.938,0.343,0.964,0.31,0.965,0.301,0.852,0.281,0.839,0.227,0.834,0.208,0.842,0.208,0.882,0.184,0.887,0.179,0.863,0.132,0.877,0.114,0.868,0.114,0.858,0.142,0.843,0.162,0.819,0.152,0.792,0.152,0.658,0.166,0.549,0.164,0.512,0.121,0.449,0.112,0.384,0.118,0.33,0.078,0.329,0.076,0.306,0.067,0.304,0.068,0.275,0.083,0.253,0.078,0.177,0.094,0.148,0.106,0.149,0.106,0.163,0.153,0.159,0.169,0.139,0.206,0.141,0.225,0.122,0.317,0.077,0.337,0.077,0.342,0.043,0.409,0.048,0.425,0.033,0.443,0.031,0.455,0.014]]}}},{"id":"monet","title":"Impression, soleil levant","artist":"Claude Monet","year":"1872","died":1926,"w":1200,"h":931,"commons":"https://commons.wikimedia.org/wiki/File:Monet_-_Impression,_Sunrise.jpg","lic":"public domain (PD-Art, PD-old)","where":"Musée Marmottan Monet, Paris","regions":{"figure":{"label":"The sky","inc":[[0.0,0.0,0.0,0.36,0.999,0.36,0.999,0.0]],"exc":[[0.574,0.27,0.635,0.269,0.636,0.345,0.575,0.346]]},"background":{"label":"The water","inc":[[0.0,0.469,0.0,0.999,0.999,0.999,0.999,0.469,0.646,0.469,0.645,0.821,0.564,0.82,0.564,0.469]],"exc":[[0.425,0.638,0.506,0.639,0.505,0.79,0.424,0.789],[0.234,0.579,0.315,0.578,0.316,0.659,0.235,0.661],[0.129,0.529,0.2,0.528,0.201,0.584,0.13,0.585]]}}},{"id":"gauguin","title":"Femmes de Tahiti (Sur la plage)","artist":"Paul Gauguin","year":"1891","died":1903,"w":1200,"h":895,"commons":"https://commons.wikimedia.org/wiki/File:Paul_Gauguin_056.jpg","lic":"public domain (PD-Art, PD-old)","where":"Musée d’Orsay, Paris","regions":{"figure":{"label":"The two women","inc":[[0.271,0.069,0.235,0.064,0.218,0.075,0.196,0.116,0.179,0.175,0.158,0.158,0.14,0.167,0.145,0.217,0.131,0.231,0.112,0.299,0.081,0.329,0.01,0.454,0.018,0.605,0.057,0.72,0.087,0.765,0.152,0.792,0.153,0.837,0.142,0.867,0.074,0.901,0.052,0.924,0.055,0.975,0.086,0.999,0.108,0.999,0.111,0.991,0.163,0.999,0.203,0.94,0.223,0.782,0.333,0.782,0.441,0.752,0.448,0.797,0.469,0.8,0.464,0.768,0.453,0.762,0.453,0.752,0.437,0.751,0.446,0.651,0.471,0.616,0.537,0.579,0.516,0.46,0.552,0.464,0.542,0.436,0.554,0.406,0.525,0.378,0.501,0.388,0.497,0.428,0.488,0.429,0.463,0.406,0.465,0.365,0.438,0.364,0.435,0.377,0.424,0.377,0.415,0.359,0.361,0.364,0.361,0.345,0.381,0.346,0.381,0.325,0.368,0.325,0.367,0.344,0.296,0.339,0.307,0.306,0.324,0.295,0.322,0.25,0.333,0.228,0.338,0.187,0.327,0.127],[0.738,0.0,0.712,0.041,0.702,0.078,0.708,0.213,0.666,0.234,0.637,0.265,0.586,0.399,0.578,0.439,0.58,0.524,0.602,0.579,0.598,0.62,0.575,0.62,0.585,0.594,0.547,0.597,0.547,0.617,0.531,0.618,0.527,0.637,0.499,0.628,0.484,0.638,0.486,0.754,0.514,0.742,0.515,0.755,0.496,0.782,0.495,0.803,0.485,0.804,0.481,0.826,0.507,0.839,0.549,0.839,0.562,0.857,0.572,0.857,0.579,0.877,0.607,0.892,0.626,0.877,0.633,0.897,0.647,0.906,0.716,0.906,0.75,0.88,0.764,0.88,0.771,0.923,0.758,0.943,0.758,0.962,0.772,0.969,0.782,0.999,0.818,0.999,0.846,0.909,0.882,0.932,0.923,0.921,0.967,0.928,0.999,0.899,0.999,0.863,0.977,0.846,0.976,0.803,0.966,0.776,0.974,0.745,0.999,0.707,0.999,0.603,0.99,0.553,0.98,0.537,0.987,0.394,0.974,0.316,0.958,0.283,0.911,0.24,0.852,0.214,0.85,0.196,0.868,0.178,0.889,0.176,0.894,0.154,0.881,0.097,0.853,0.092,0.832,0.0]],"exc":[]},"background":{"label":"Beach and sea","inc":[[0.999,0.904,0.968,0.932,0.925,0.924,0.907,0.935,0.859,0.933,0.856,0.916,0.846,0.915,0.823,0.999,0.999,0.999],[0.168,0.993,0.774,0.999,0.769,0.971,0.755,0.962,0.756,0.941,0.767,0.923,0.762,0.894,0.74,0.893,0.734,0.912,0.62,0.902,0.578,0.88,0.547,0.843,0.507,0.844,0.458,0.817,0.44,0.787,0.438,0.757,0.335,0.785,0.224,0.788,0.209,0.931],[0.519,0.464,0.54,0.586,0.571,0.581,0.598,0.593,0.578,0.532,0.575,0.463],[0.836,0.0,0.856,0.089,0.883,0.095,0.897,0.156,0.891,0.18,0.868,0.182,0.855,0.194,0.854,0.212,0.927,0.248,0.96,0.279,0.977,0.314,0.99,0.401,0.983,0.535,0.999,0.57,0.999,0.0],[0.732,0.0,0.0,0.0,0.0,0.999,0.071,0.999,0.048,0.964,0.049,0.922,0.072,0.897,0.141,0.864,0.15,0.84,0.148,0.792,0.086,0.769,0.054,0.722,0.015,0.607,0.007,0.52,0.012,0.439,0.078,0.326,0.109,0.297,0.128,0.229,0.142,0.214,0.138,0.164,0.16,0.154,0.18,0.165,0.201,0.095,0.225,0.065,0.247,0.059,0.278,0.068,0.304,0.09,0.336,0.142,0.341,0.208,0.324,0.253,0.335,0.333,0.365,0.335,0.368,0.321,0.383,0.321,0.385,0.343,0.398,0.343,0.398,0.354,0.452,0.359,0.452,0.341,0.467,0.339,0.481,0.347,0.482,0.381,0.468,0.394,0.473,0.412,0.482,0.412,0.484,0.397,0.497,0.396,0.492,0.364,0.514,0.364,0.516,0.374,0.544,0.386,0.559,0.408,0.552,0.447,0.576,0.447,0.592,0.366,0.623,0.282,0.665,0.229,0.705,0.212,0.699,0.076,0.709,0.039]],"exc":[]}}},{"id":"malsport","title":"Sportsmen","artist":"Kazimir Malevich","year":"1930–31","died":1935,"w":1200,"h":1004,"commons":"https://commons.wikimedia.org/wiki/File:%D0%A1%D0%BF%D0%BE%D1%80%D1%82%D1%81%D0%BC%D0%B5%D0%BD%D1%8B._1930-1931._%D0%93%D0%A0%D0%9C.png","lic":"public domain (PD-Art, PD-old-70)","where":"State Russian Museum, Saint Petersburg","regions":{"figure":{"label":"The sportsmen","inc":[[0.135,0.064,0.12,0.096,0.125,0.208,0.087,0.222,0.071,0.246,0.047,0.346,0.033,0.451,0.028,0.629,0.037,0.629,0.043,0.598,0.055,0.598,0.078,0.447,0.089,0.446,0.092,0.459,0.07,0.575,0.071,0.754,0.081,0.865,0.055,0.907,0.05,0.935,0.073,0.939,0.114,0.892,0.136,0.644,0.147,0.645,0.17,0.894,0.194,0.934,0.222,0.932,0.207,0.868,0.213,0.599,0.233,0.598,0.236,0.619,0.258,0.608,0.261,0.623,0.271,0.623,0.273,0.598,0.288,0.596,0.308,0.429,0.318,0.429,0.323,0.484,0.31,0.531,0.304,0.649,0.324,0.871,0.303,0.94,0.332,0.941,0.36,0.894,0.372,0.667,0.383,0.668,0.396,0.9,0.433,0.939,0.466,0.94,0.467,0.926,0.433,0.885,0.442,0.556,0.427,0.468,0.432,0.453,0.443,0.454,0.46,0.601,0.471,0.601,0.472,0.627,0.482,0.627,0.491,0.609,0.485,0.441,0.458,0.244,0.41,0.213,0.408,0.172,0.417,0.129,0.412,0.087,0.394,0.071,0.381,0.071,0.358,0.093,0.365,0.212,0.318,0.238,0.296,0.292,0.268,0.441,0.261,0.548,0.25,0.549,0.234,0.291,0.213,0.238,0.173,0.212,0.176,0.074,0.162,0.06],[0.857,0.058,0.828,0.057,0.812,0.076,0.812,0.119,0.823,0.164,0.819,0.203,0.786,0.217,0.766,0.244,0.745,0.346,0.733,0.496,0.722,0.495,0.72,0.404,0.699,0.241,0.682,0.22,0.651,0.211,0.654,0.087,0.637,0.065,0.611,0.069,0.6,0.086,0.608,0.208,0.571,0.223,0.553,0.254,0.532,0.349,0.516,0.477,0.512,0.605,0.522,0.605,0.524,0.581,0.537,0.577,0.563,0.416,0.575,0.416,0.583,0.475,0.559,0.571,0.557,0.714,0.576,0.879,0.546,0.916,0.548,0.937,0.615,0.927,0.609,0.902,0.616,0.751,0.627,0.753,0.632,0.893,0.655,0.943,0.675,0.946,0.684,0.937,0.687,0.915,0.671,0.863,0.686,0.59,0.719,0.597,0.721,0.551,0.762,0.555,0.769,0.583,0.78,0.879,0.754,0.915,0.752,0.938,0.787,0.937,0.828,0.892,0.837,0.657,0.848,0.658,0.858,0.904,0.883,0.942,0.911,0.937,0.895,0.88,0.914,0.61,0.912,0.556,0.893,0.477,0.902,0.4,0.915,0.407,0.929,0.588,0.943,0.591,0.948,0.618,0.958,0.618,0.963,0.596,0.949,0.343,0.927,0.245,0.901,0.214,0.862,0.203,0.876,0.104,0.868,0.067]],"exc":[]},"background":{"label":"Around them","inc":[[0.0,0.0,0.0,0.999,0.999,0.999,0.999,0.0]],"exc":[[0.133,0.06,0.164,0.056,0.182,0.078,0.177,0.209,0.216,0.234,0.235,0.278,0.251,0.498,0.261,0.498,0.273,0.385,0.305,0.255,0.329,0.222,0.361,0.209,0.362,0.172,0.351,0.127,0.355,0.09,0.38,0.066,0.397,0.067,0.415,0.084,0.422,0.122,0.413,0.21,0.44,0.22,0.461,0.241,0.488,0.438,0.494,0.612,0.477,0.64,0.467,0.639,0.469,0.607,0.456,0.605,0.457,0.573,0.445,0.572,0.437,0.882,0.47,0.923,0.468,0.944,0.431,0.943,0.393,0.903,0.383,0.743,0.372,0.743,0.362,0.902,0.329,0.949,0.299,0.942,0.302,0.912,0.32,0.874,0.301,0.609,0.276,0.609,0.273,0.638,0.247,0.627,0.242,0.645,0.231,0.644,0.232,0.611,0.217,0.611,0.212,0.87,0.225,0.935,0.192,0.938,0.167,0.897,0.147,0.682,0.136,0.682,0.117,0.895,0.074,0.944,0.054,0.945,0.045,0.935,0.077,0.848,0.068,0.757,0.066,0.62,0.042,0.621,0.04,0.652,0.029,0.651,0.022,0.624,0.03,0.448,0.043,0.343,0.068,0.243,0.085,0.218,0.121,0.206,0.114,0.11,0.122,0.074],[0.859,0.054,0.872,0.064,0.88,0.102,0.866,0.201,0.903,0.21,0.931,0.242,0.953,0.34,0.962,0.467,0.963,0.617,0.956,0.632,0.946,0.632,0.943,0.604,0.917,0.604,0.898,0.864,0.914,0.94,0.907,0.948,0.881,0.946,0.855,0.907,0.848,0.702,0.838,0.702,0.832,0.843,0.838,0.897,0.782,0.945,0.749,0.941,0.747,0.921,0.776,0.878,0.766,0.589,0.738,0.586,0.737,0.611,0.719,0.613,0.713,0.627,0.702,0.626,0.703,0.599,0.689,0.599,0.676,0.861,0.691,0.914,0.688,0.94,0.675,0.951,0.652,0.947,0.63,0.899,0.627,0.866,0.618,0.866,0.617,0.933,0.595,0.943,0.546,0.941,0.54,0.918,0.573,0.876,0.553,0.695,0.556,0.568,0.579,0.473,0.574,0.434,0.563,0.433,0.542,0.585,0.527,0.588,0.524,0.613,0.511,0.613,0.507,0.599,0.512,0.474,0.528,0.346,0.55,0.251,0.568,0.219,0.603,0.205,0.597,0.083,0.608,0.065,0.64,0.061,0.657,0.084,0.655,0.208,0.684,0.216,0.703,0.238,0.724,0.438,0.734,0.438,0.742,0.343,0.762,0.241,0.783,0.213,0.815,0.2,0.809,0.073,0.827,0.052]]}}},{"id":"malpeasants","title":"Two Peasant Figures","artist":"Kazimir Malevich","year":"about 1928–30","died":1935,"w":939,"h":1200,"commons":"https://commons.wikimedia.org/wiki/File:Two_Peasant_Figures_by_Kazimir_Malevich,_c._1928-1930.jpg","lic":"public domain (PD-old-70)","where":"private collection, sold at Sotheby’s","regions":{"figure":{"label":"The two women","inc":[[0.643,0.013,0.595,0.02,0.556,0.057,0.56,0.112,0.579,0.125,0.595,0.125,0.602,0.143,0.595,0.161,0.553,0.173,0.519,0.243,0.515,0.285,0.504,0.284,0.464,0.212,0.385,0.173,0.385,0.154,0.437,0.118,0.453,0.087,0.442,0.042,0.415,0.028,0.393,0.028,0.343,0.038,0.299,0.064,0.279,0.088,0.272,0.118,0.287,0.177,0.223,0.213,0.143,0.318,0.131,0.318,0.129,0.299,0.104,0.307,0.11,0.322,0.132,0.323,0.133,0.333,0.11,0.378,0.078,0.494,0.071,0.582,0.088,0.645,0.154,0.647,0.135,0.82,0.157,0.834,0.224,0.854,0.242,0.887,0.226,0.945,0.244,0.967,0.309,0.999,0.341,0.999,0.374,0.976,0.372,0.963,0.311,0.903,0.306,0.868,0.317,0.843,0.393,0.851,0.429,0.908,0.455,0.91,0.454,0.883,0.439,0.881,0.438,0.867,0.452,0.84,0.505,0.818,0.498,0.762,0.512,0.763,0.518,0.783,0.532,0.794,0.613,0.825,0.6,0.906,0.616,0.939,0.658,0.942,0.678,0.93,0.661,0.841,0.78,0.83,0.762,0.917,0.773,0.918,0.773,0.935,0.761,0.937,0.766,0.952,0.842,0.981,0.908,0.977,0.904,0.948,0.844,0.913,0.828,0.854,0.838,0.782,0.813,0.487,0.836,0.491,0.841,0.548,0.873,0.552,0.859,0.502,0.865,0.459,0.855,0.358,0.834,0.271,0.792,0.187,0.731,0.164,0.694,0.14,0.708,0.065,0.682,0.033]],"exc":[[0.475,0.455,0.497,0.455,0.498,0.482,0.515,0.482,0.524,0.49,0.532,0.553,0.514,0.682,0.503,0.681],[0.194,0.454,0.169,0.609,0.137,0.608,0.121,0.536,0.133,0.527,0.138,0.503,0.16,0.502,0.179,0.456]]},"background":{"label":"The field","inc":[[0.0,0.0,0.0,0.32,0.011,0.321,0.011,0.343,0.0,0.344,0.0,0.999,0.3,0.999,0.242,0.969,0.222,0.948,0.234,0.878,0.22,0.856,0.154,0.837,0.122,0.808,0.122,0.792,0.136,0.791,0.136,0.78,0.126,0.777,0.128,0.718,0.144,0.717,0.148,0.656,0.085,0.647,0.068,0.583,0.074,0.492,0.115,0.348,0.125,0.34,0.125,0.329,0.101,0.318,0.101,0.305,0.117,0.296,0.15,0.301,0.219,0.212,0.282,0.177,0.268,0.117,0.276,0.087,0.296,0.062,0.334,0.038,0.391,0.025,0.417,0.026,0.442,0.037,0.457,0.076,0.449,0.11,0.39,0.155,0.392,0.172,0.447,0.195,0.472,0.216,0.498,0.262,0.515,0.268,0.515,0.242,0.549,0.172,0.593,0.158,0.592,0.129,0.575,0.127,0.556,0.111,0.553,0.055,0.589,0.02,0.628,0.009,0.663,0.017,0.711,0.063,0.7,0.14,0.733,0.162,0.795,0.185,0.835,0.262,0.859,0.359,0.864,0.502,0.877,0.553,0.839,0.553,0.83,0.507,0.816,0.506,0.841,0.78,0.831,0.842,0.841,0.903,0.854,0.92,0.907,0.946,0.912,0.978,0.847,0.989,0.761,0.953,0.755,0.922,0.774,0.833,0.67,0.845,0.67,0.856,0.68,0.859,0.679,0.905,0.689,0.907,0.678,0.943,0.613,0.942,0.596,0.907,0.609,0.826,0.506,0.787,0.508,0.819,0.461,0.843,0.46,0.867,0.453,0.868,0.457,0.912,0.425,0.909,0.391,0.853,0.315,0.853,0.309,0.878,0.32,0.913,0.379,0.968,0.379,0.977,0.348,0.999,0.999,0.999,0.999,0.0]],"exc":[]}}}];
 const FILL_MIN = 6, FILL_CELLS = 150, VEIL = 'rgba(255,255,255,0.7)', fillCache = {};
 function inRing(x, y, r) { let c = false; for (let i = 0, j = r.length - 2; i < r.length; j = i, i += 2) { const xi = r[i], yi = r[i+1], xj = r[j], yj = r[j+1]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c; }
 function inRegion(reg, x, y) {
@@ -855,6 +912,88 @@ function readFillPixels(Wpx, Hpx, px, cands) {   // cands: [{ P, rn, s? }] -> be
         if (!best || bad < best.bad) best = { text, dir, lang, P, rn, s, cells, bad };
       }
     }
+  }
+  return best;
+}
+
+// ---- v7.1 your own photo: a framed rectangle anywhere in a picture ----------------
+// The code fills a plain lattice inside the rectangle the visitor drags: cells of s px, black lines L = s/12 (at least 2 px),
+// an outer frame 2L thick and a white mat around it. The reader finds the frame by its mat, so the PNG can be read back
+// from the pixels alone; the file name also stores where the lattice is. The photo never leaves the browser.
+const OWN_MAX = 1600, OWN_MAT = '#FFFFFF';
+const ownGeom = s => { const L = Math.max(2, Math.round(s / 12)); return { L, h: L >> 1, M: Math.max(3, Math.round(s / 3)) }; };
+function ownLattice(rect, s) {          // the lattice centred in the rectangle [x, y, w, h], leaving room for the frame and the mat
+  const { L, M } = ownGeom(s), [x, y, w, h] = rect, pad = M + 2*L + 1;
+  const C = Math.floor((w - 2*pad) / s), R = Math.floor((h - 2*pad) / s);
+  return C >= 1 && R >= 1 ? { s, C, R, L, M, ox: Math.round(x + (w - C*s) / 2), oy: Math.round(y + (h - R*s) / 2) } : null;
+}
+function ownLayout(cells, lang, rect, dir = 'LR') {   // largest cell size that holds key + text (at least FILL_CELLS cells when the rectangle allows)
+  const need = cells.length + 8;
+  for (const min of [Math.max(need, FILL_CELLS), need])
+    for (let s = Math.min(rect[2], rect[3]) >> 2; s >= FILL_MIN; s--) {
+      const G = ownLattice(rect, s); if (!G || G.C * G.R < min) continue;
+      return { own: true, rect, dir, lang, ...G, stream: [...KEY, ...KEY_SCRIPT[lang], ...spreadFillers(cells, G.C*G.R - need)], idx: order(G.C, G.R, dir) };
+    }
+  return null;
+}
+function paintOwn(canvas, img, F) {     // the photo, a white mat, the code cells (fillers as the white veil), lattice lines and a 2L frame
+  const { s, C, R, L, M, ox, oy, idx, stream } = F, h = L >> 1, X = ox - h - L, Y = oy - h - L, FW = C*s + 3*L, FH = R*s + 3*L;
+  canvas.width = img.width; canvas.height = img.height;
+  const g = canvas.getContext('2d'); g.drawImage(img, 0, 0, canvas.width, canvas.height);
+  g.fillStyle = OWN_MAT; g.fillRect(X - M, Y - M, FW + 2*M, M); g.fillRect(X - M, Y + FH, FW + 2*M, M); g.fillRect(X - M, Y, M, FH); g.fillRect(X + FW, Y, M, FH);
+  idx.forEach((i, j) => { g.fillStyle = isFiller(stream, j) ? VEIL : COL[stream[j]]; g.fillRect(ox + (i % C)*s, oy + Math.floor(i / C)*s, s, s); });
+  g.fillStyle = COL.K;
+  for (let c = 0; c <= C; c++) g.fillRect(ox + c*s - h, oy - h, L, R*s + L);
+  for (let r = 0; r <= R; r++) g.fillRect(ox - h, oy + r*s - h, C*s + L, L);
+  g.fillRect(X, Y, FW, L); g.fillRect(X, Y + FH - L, FW, L); g.fillRect(X, Y, L, FH); g.fillRect(X + FW - L, Y, L, FH);
+}
+const ownName = F => `mondrian-code-own-x${F.ox}y${F.oy}c${F.C}r${F.R}s${F.s}.png`;
+const parseOwnName = name => { const m = /mondrian-code-own-x(\d+)y(\d+)c(\d+)r(\d+)s(\d+)/.exec(name || ''); return m ? { ox: +m[1], oy: +m[2], C: +m[3], R: +m[4], s: +m[5] } : null; };
+function findFrames(W, H, d) {          // candidate lattices: a dark rectangle outline with a white mat all round, then every cell size that fits it
+  const dark = (x, y) => { const i = (y*W + x)*4; return d[i] + d[i+1] + d[i+2] <= 200; };
+  const mat = (x, y) => { if (x < 0 || y < 0 || x >= W || y >= H) return true; const i = (y*W + x)*4; return d[i] >= 240 && d[i+1] >= 240 && d[i+2] >= 240; };
+  const out = [];
+  for (let y = 0; y < H - 8; y++) for (let x = 0; x < W - 8; x++) {
+    if (!dark(x, y) || !mat(x - 1, y) || !mat(x, y - 1)) continue;
+    let fw = 0; while (x + fw < W && dark(x + fw, y)) fw++;
+    let fh = 0; while (y + fh < H && dark(x, y + fh)) fh++;
+    let ok = fw >= 12 && fh >= 12;
+    for (let k = -1; k <= fw && ok; k++) ok = mat(x + k, y - 1) && mat(x + k, y + fh);
+    for (let k = 0; k < fh && ok; k++) ok = mat(x - 1, y + k) && mat(x + fw, y + k) && dark(x + fw - 1, y + k);
+    for (let k = 0; k < fw && ok; k++) ok = dark(x + k, y + fh - 1);
+    if (ok) for (let s = FILL_MIN; s <= Math.min(fw, fh); s++) {
+      const L = Math.max(2, Math.round(s / 12)), C = (fw - 3*L) / s, R = (fh - 3*L) / s;
+      if (Number.isInteger(C) && Number.isInteger(R) && C >= 1 && R >= 1 && C*R >= 9) out.push({ s, C, R, ox: x + (L >> 1) + L, oy: y + (L >> 1) + L });
+    }
+    if (out.length > 600) return out;
+    if (fw > 1) x += fw - 1;
+  }
+  return out;
+}
+function readOwnData(W, H, d, hint) {    // -> { own, text, dir, lang, s, C, R, ox, oy, cells, bad } or null
+  const pal = Object.entries(COL).map(([k,h]) => [k,[1,3,5].map(i=>parseInt(h.slice(i,i+2),16))]);
+  const nearest = p => pal.reduce((best,[k,c]) => { const dd=(p[0]-c[0])**2+(p[1]-c[1])**2+(p[2]-c[2])**2; return dd<best[1]?[k,dd]:best; }, ['',1e9]);
+  const px = (x, y) => { const i = (Math.floor(y)*W + Math.floor(x))*4; return [d[i], d[i+1], d[i+2]]; };
+  let best = null;
+  for (const G of hint ? [hint] : findFrames(W, H, d)) {
+    const { s, C, R, ox, oy } = G, L = Math.max(2, Math.round(s / 12));
+    if (!(s >= FILL_MIN) || ox - 2*L < 0 || oy - 2*L < 0 || ox + C*s + 2*L > W || oy + R*s + 2*L > H || C*R < 9) continue;
+    const at = i => px(ox + (i % C + 0.5)*s, oy + (Math.floor(i / C) + 0.5)*s);
+    let lines = 0; const probe = Math.min(C*R, 600);     // the lattice check: dark lines on the left and top border of each cell
+    for (let i = 0; i < probe; i++) { const c = i % C, r = Math.floor(i / C), a = px(ox + c*s, oy + (r + 0.5)*s), b = px(ox + (c + 0.5)*s, oy + r*s);
+      if (a[0]+a[1]+a[2] <= 200 && b[0]+b[1]+b[2] <= 200) lines++; }
+    if (lines < 0.95 * probe) continue;
+    for (const dir of Object.keys(DIRS)) {
+      const idx = order(C, R, dir); let key = '';
+      for (let j = 0; j < 8 && key !== null; j++) { const [c, dd] = nearest(at(idx[j])); key = dd > 9000 ? null : key + c; }
+      if (key === null || key.slice(0, 5) !== KEY) continue;
+      const lang = Object.keys(KEY_SCRIPT).find(l => KEY_SCRIPT[l] === key.slice(5)); if (!lang) continue;
+      const cells = idx.map(i => nearest(at(i))[0]), rest = cells.slice(8);
+      let run = 0, bad = 0; for (const c of rest) { run = (c === 'W' || c === 'K') ? 0 : run + 1; if (run > 7) bad++; }
+      const text = decodeStream(rest, lang); bad += (text.match(/�/g) || []).length;
+      if (!best || bad < best.bad) best = { own: true, text, dir, lang, s, C, R, ox, oy, cells, bad };
+    }
+    if (best && !best.bad) break;
   }
   return best;
 }
@@ -930,44 +1069,99 @@ function loadPainting(P) { return IMG[P.id] ||= new Promise((res, rej) => { cons
 const credit = P => `${P.artist} (died ${P.died}), <i>${P.title}</i>, ${P.year}. ${P.where}. Image: <a href="${P.commons}">Wikimedia Commons</a>, ${P.lic}.`;
 async function renderFill() {
   if (!fillOn || !ENC || !ENC.cells.length) return;
+  if (PICK.id === 'own') { renderOwn(); return; }
   const tok = ++fillTok, P = paintingById(PICK.id), F = fillLayout(ENC.cells, ENC.lang, P, PICK.rn, $('enc-dir').value);
   $('enc-fill-credit').innerHTML = credit(P);
   if (!F) { $('enc-fill-info').innerHTML = '<span class="warn">Too long for this part of the painting: try the other region or a shorter text.</span>'; return; }
-  const img = await loadPainting(P); if (tok !== fillTok) return;
+  const img = await loadPainting(P); if (tok !== fillTok || PICK.id === 'own') return;
   paintFill($('enc-fill'), img, F);
   prepPng('enc-fill-dl', $('enc-fill'), fillName(F));
   const pad = F.idx.length - ENC.cells.length - 8;
   $('enc-fill-info').textContent = `${P.regions[PICK.rn].label}: ${F.idx.length} cells of ${F.s} px = ${ENC.cells.length} text + 8 key + ${pad} empty (the white veil) · ${DIRS[F.dir].toLowerCase()}`;
 }
+// your own photo: scaled to OWN_MAX px in the browser, the visitor drags the rectangle on the canvas
+const OWN = { img: null, rect: null };
+function ownPreview(rect) {             // the photo with the rectangle being dragged
+  const cv = $('enc-fill'), g = cv.getContext('2d'); cv.width = OWN.img.width; cv.height = OWN.img.height; g.drawImage(OWN.img, 0, 0);
+  if (!rect) return; const w = Math.max(2, Math.round(cv.width / 300));
+  g.fillStyle = 'rgba(255,255,255,0.25)'; g.fillRect(...rect);
+  g.lineWidth = w; g.setLineDash([4*w, 3*w]); g.strokeStyle = COL.K; g.strokeRect(...rect); g.strokeStyle = COL['1']; g.lineDashOffset = 3.5*w; g.strokeRect(...rect);
+}
+function renderOwn() {
+  ++fillTok;
+  $('enc-fill-credit').innerHTML = 'Your own photo, processed only in this browser.';
+  if (!OWN.img) { const cv = $('enc-fill'); cv.width = 10; cv.height = 10; PNG['enc-fill-dl'] = null; $('enc-fill-info').textContent = 'Choose a photo first.'; return; }
+  const F = ownLayout(ENC.cells, ENC.lang, OWN.rect, $('enc-dir').value);
+  if (!F) { ownPreview(OWN.rect); PNG['enc-fill-dl'] = null; $('enc-fill-info').innerHTML = '<span class="warn">This rectangle is too small for the text: drag a larger one or shorten the text.</span>'; return; }
+  paintOwn($('enc-fill'), OWN.img, F);
+  prepPng('enc-fill-dl', $('enc-fill'), ownName(F));
+  const pad = F.C*F.R - ENC.cells.length - 8;
+  $('enc-fill-info').textContent = `Your rectangle: ${F.C} × ${F.R} cells of ${F.s} px = ${ENC.cells.length} text + 8 key + ${pad} empty (the white veil) · ${DIRS[F.dir].toLowerCase()} · drag on the photo for another rectangle`;
+}
+function loadOwn(file) {
+  if (!file) return;
+  const url = URL.createObjectURL(file), img = new Image();
+  img.onload = () => {
+    const k = Math.min(1, OWN_MAX / Math.max(img.naturalWidth, img.naturalHeight)), cv = document.createElement('canvas');
+    cv.width = Math.max(1, Math.round(img.naturalWidth * k)); cv.height = Math.max(1, Math.round(img.naturalHeight * k));
+    const g = cv.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, cv.width, cv.height); g.drawImage(img, 0, 0, cv.width, cv.height);
+    URL.revokeObjectURL(url);
+    OWN.img = cv; OWN.rect = [Math.round(cv.width * 0.2), Math.round(cv.height * 0.2), Math.round(cv.width * 0.6), Math.round(cv.height * 0.6)];
+    $('own-hint').textContent = 'Drag on the photo to mark the rectangle the code fills.';
+    renderFill();
+  };
+  img.onerror = () => { URL.revokeObjectURL(url); $('enc-fill-info').innerHTML = '<span class="warn">This file could not be opened as an image.</span>'; };
+  img.src = url;
+}
+(() => {                                // drag a rectangle on the photo (mouse, pen or finger)
+  const cv = $('enc-fill'); let start = null, cur = null;
+  const at = e => { const b = cv.getBoundingClientRect(); return [Math.min(cv.width, Math.max(0, (e.clientX - b.left) * cv.width / b.width)), Math.min(cv.height, Math.max(0, (e.clientY - b.top) * cv.height / b.height))]; };
+  const box = (a, b) => [Math.round(Math.min(a[0], b[0])), Math.round(Math.min(a[1], b[1])), Math.round(Math.abs(a[0] - b[0])), Math.round(Math.abs(a[1] - b[1]))];
+  cv.addEventListener('pointerdown', e => { if (PICK.id !== 'own' || !OWN.img) return; e.preventDefault(); cv.setPointerCapture(e.pointerId); start = at(e); cur = null; });
+  cv.addEventListener('pointermove', e => { if (!start) return; cur = box(start, at(e)); ownPreview(cur); });
+  const end = () => { if (!start) return; start = null; if (cur && cur[2] >= 24 && cur[3] >= 24) OWN.rect = cur; renderOwn(); };
+  cv.addEventListener('pointerup', end); cv.addEventListener('pointercancel', end);
+})();
 function setPick(id, rn) {
   if (id) PICK.id = id; if (rn) PICK.rn = rn;
+  const own = PICK.id === 'own';
   document.querySelectorAll('#pick button').forEach(b => b.setAttribute('aria-pressed', b.dataset.id === PICK.id));
-  ['figure', 'background'].forEach(r => { $('reg-' + r).setAttribute('aria-pressed', r === PICK.rn); $('reg-' + r).textContent = paintingById(PICK.id).regions[r].label; });
+  $('reg-seg').hidden = own; $('own-bar').hidden = !own; $('own-note').hidden = !own; $('enc-fill').classList.toggle('dragme', own);
+  if (!own) ['figure', 'background'].forEach(r => { $('reg-' + r).setAttribute('aria-pressed', r === PICK.rn); $('reg-' + r).textContent = paintingById(PICK.id).regions[r].label; });
   renderFill();
 }
 function openFills() {
   if (fillOn) return; fillOn = true;
-  $('pick').innerHTML = PAINTINGS.map(P => `<button type="button" data-id="${P.id}" title="${P.artist}, ${P.title}" aria-label="${P.artist}, ${P.title}"><img src="paintings/${P.id}-t.jpg" alt="" width="72" height="72" loading="lazy"></button>`).join('');
+  $('pick').innerHTML = PAINTINGS.map(P => `<button type="button" data-id="${P.id}" title="${P.artist}, ${P.title}" aria-label="${P.artist}, ${P.title}"><img src="paintings/${P.id}-t.jpg" alt="" width="72" height="72" loading="lazy"></button>`).join('') +
+    '<button type="button" data-id="own" class="own" title="Your own photo" aria-label="Your own photo">Your<br>own<br>photo</button>';
   document.querySelectorAll('#pick button').forEach(b => b.onclick = () => setPick(b.dataset.id));
   setPick();
 }
 const testFold = $('enc-go').closest('details');
 testFold.addEventListener('toggle', () => { if (testFold.open) openFills(); });
 ['figure', 'background'].forEach(r => $('reg-' + r).onclick = () => setPick(null, r));
+$('own-file').onchange = e => loadOwn(e.target.files[0]);
 document.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => {
   const t = $(b.dataset.copy).textContent, done = () => { b.textContent = 'Copied'; setTimeout(() => b.textContent = 'Copy', 1500); };
   if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(t).then(done, () => {});
   else { const r = document.createRange(); r.selectNodeContents($(b.dataset.copy)); const s = getSelection(); s.removeAllRanges(); s.addRange(r); try { document.execCommand('copy'); done(); } catch (e) {} }
 });
 // ---- reader ----
-function runDecode() {
-  const raw = $('dec-in').value.toUpperCase(), s = raw.replace(/[^RYBWK]/g,'');
-  if (!s) { $('dec-out').textContent = 'Paste a code string or upload a painting.'; return; }
+const esc = t => t.replace(/&/g, '&amp;').replace(/</g, '&lt;');
+function decodeString(raw) {            // a code string -> { html, r } (the reader result) or null
+  raw = raw.toUpperCase(); const s = raw.replace(/[^RYBWK]/g,'');
+  if (!s) return null;
   const rows = raw.split('/').map(x => x.replace(/[^RYBWK]/g,'')).filter(Boolean);   // rows marked with / give the width of a rectangle
   const W = rows.length > 1 && rows.every(x => x.length === rows[0].length) ? rows[0].length : undefined;
   const r = readGrid([...s].map(c => FROM[c]), $('dec-lang').value, W);
-  $('dec-out').innerHTML = (r.text ? r.text.replace(/</g,'&lt;') : '(nothing to read)') +
-    `<div class="muted" style="font-weight:400">${r.dir ? `Key found: ${SCRIPT[r.lang]}, ${r.W} × ${r.H}, read ${DIRS[r.dir].toLowerCase()}` : 'No direction key (a line or an old painting): read left to right as ' + SCRIPT[r.lang] + '; change the Script menu for another script'}</div>`;
+  return { r, html: (r.text ? r.text.replace(/</g,'&lt;') : '(nothing to read)') +
+    `<div class="muted" style="font-weight:400">${r.dir ? `Key found: ${SCRIPT[r.lang]}, ${r.W} × ${r.H}, read ${DIRS[r.dir].toLowerCase()}` : 'No direction key (a line or an old painting): read left to right as ' + SCRIPT[r.lang] + '; change the Script menu for another script'}</div>` };
+}
+const outTo = where => { const o = $('dec-out'); if (o.parentNode !== $(where)) $(where).appendChild(o); return o; };
+function runDecode() {
+  ++animTok; const o = outTo('dec-home'), d = decodeString($('dec-in').value);
+  if (!d) { o.textContent = 'Paste a code string or upload a painting.'; return; }
+  o.innerHTML = d.html;
 }
 function readFill(img, name) {     // a painting fill: the file name (or the menu) names the painting; otherwise every painting of this shape
   const Wpx = img.naturalWidth, Hpx = img.naturalHeight, hint = parseFillName(name), sel = $('dec-paint').value;
@@ -980,26 +1174,99 @@ function readFill(img, name) {     // a painting fill: the file name (or the men
   if (!r || r.bad >= 1000) r = readFillPixels(Wpx, Hpx, px, all);
   return r && r.bad < 1000 ? r : null;
 }
-function showFill(r) {
-  $('dec-in').value = '';
-  $('dec-out').innerHTML = (r.text ? r.text.replace(/</g,'&lt;') : '(nothing to read)') +
-    `<div class="muted" style="font-weight:400">Painting fill found: ${r.P.artist}, ${r.P.title}, ${r.P.regions[r.rn].label.toLowerCase()} · ${SCRIPT[r.lang]}, cells of ${r.s} px, read ${DIRS[r.dir].toLowerCase()}</div>`;
+function readOwn(img, name, auto) {   // your photo fill: by the file name, else by finding the framed lattice
+  const W = img.naturalWidth, H = img.naturalHeight, cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const g = cv.getContext('2d'); g.drawImage(img, 0, 0); const d = g.getImageData(0, 0, W, H).data, hint = parseOwnName(name);
+  return (hint && readOwnData(W, H, d, hint)) || (auto ? readOwnData(W, H, d) : null);
 }
-function readUpload(img, name) {
-  const f = readFill(img, name); if (f) { showFill(f); return f; }
-  const g = readImage(img);
-  if (!g) { $('dec-out').textContent = 'Could not find a Mondrian Code grid in this image.'; return null; }
-  $('dec-in').value = codeString(g.cells, g.W, g.H); runDecode(); return g;
+const fillHtml = r => (r.text ? esc(r.text) : '(nothing to read)') +
+  `<div class="muted" style="font-weight:400">Painting fill found: ${r.P.artist}, ${r.P.title}, ${r.P.regions[r.rn].label.toLowerCase()} · ${SCRIPT[r.lang]}, cells of ${r.s} px, read ${DIRS[r.dir].toLowerCase()}</div>`;
+const ownHtml = r => (r.text ? esc(r.text) : '(nothing to read)') +
+  `<div class="muted" style="font-weight:400">Framed rectangle found in the photo: ${r.C} × ${r.R} cells of ${r.s} px · ${SCRIPT[r.lang]}, read ${DIRS[r.dir].toLowerCase()}</div>`;
+function readUpload(img, name) {        // -> { text, html, cells: [[x, y, w, h] in 0–1, in reading order] } or { error }
+  const W = img.naturalWidth, H = img.naturalHeight, sel = $('dec-paint').value;
+  const own = r => ({ text: r.text, html: ownHtml(r), cells: order(r.C, r.R, r.dir).map(i => [(r.ox + (i % r.C)*r.s) / W, (r.oy + Math.floor(i / r.C)*r.s) / H, r.s / W, r.s / H]) });
+  if (sel === 'own' || parseOwnName(name)) { const o = readOwn(img, name, sel === 'own'); if (o) return own(o); if (sel === 'own') return { error: 'Could not find a framed Mondrian Code rectangle in this image.' }; }
+  const f = readFill(img, name);
+  if (f) { $('dec-in').value = ''; const { C, ox, oy } = lattice(f.P, f.s);
+    return { text: f.text, html: fillHtml(f), cells: fillCells(f.P, f.rn, f.s, f.dir).map(i => [(ox + (i % C)*f.s) / f.P.w, (oy + Math.floor(i / C)*f.s) / f.P.h, f.s / f.P.w, f.s / f.P.h]) }; }
+  const cv = document.createElement('canvas'); cv.width = W; cv.height = H;
+  const g = cv.getContext('2d'); g.drawImage(img, 0, 0); const data = g.getImageData(0, 0, W, H).data;
+  const px = (x, y) => { const i = (Math.floor(y)*W + Math.floor(x))*4; return [data[i], data[i+1], data[i+2]]; };
+  let grid = gridFromPixels(W, H, px);  // the same order as readPixels, with your photo fill between keyed paintings and lines or keyless grids
+  if (!(grid && grid.bad !== undefined)) {
+    if (!sel) { const o = readOwnData(W, H, data); if (o) return own(o); }
+    const l = W > 1.5 * H ? lineFromPixels(W, H, px) : null; if (l) grid = { cells: l, W: l.length, H: 1 };
+  }
+  if (!grid) return { error: 'Could not find a Mondrian Code grid in this image.' };
+  $('dec-in').value = codeString(grid.cells, grid.W, grid.H);
+  const d = decodeString($('dec-in').value), dir = d.r.dir || 'LR';
+  return { text: d.r.text, html: d.html, cells: order(grid.W, grid.H, dir).map(i => [(i % grid.W) / grid.W, Math.floor(i / grid.W) / grid.H, 1 / grid.W, 1 / grid.H]) };
+}
+// the reading animation: cells light up in reading order over the thumbnail, then the letters appear one by one (about 2.6 s; none with reduced motion)
+let animTok = 0;
+const SCAN_MS = 1500, TYPE_FROM = 1050, ANIM_MS = 2600;
+function scanFrame(cells, n, W, H, dpr) {
+  const g = $('dec-scan').getContext('2d'); g.clearRect(0, 0, W, H);
+  if (!cells.length) return;
+  g.fillStyle = 'rgba(20,20,20,0.55)'; g.fillRect(0, 0, W, H);   // the picture dims, and each cell lights up again as the reader passes it
+  for (let j = 0; j < n; j++) { const [x, y, w, h] = cells[j]; g.clearRect(x*W - 0.5, y*H - 0.5, w*W + 1, h*H + 1); }
+  if (n > 0 && n < cells.length) {      // the reading head: the current cell, framed in yellow, and a thin red line across its row or column
+    const [x, y, w, h] = cells[n - 1], lw = Math.max(2, 2*dpr), vert = cells.length > 1 && Math.abs(cells[1][0] - cells[0][0]) < 1e-9 && cells[1][1] !== cells[0][1];
+    g.fillStyle = 'rgba(221,34,34,0.85)'; if (vert) g.fillRect((x + w/2)*W - lw/2, 0, lw, H); else g.fillRect(0, (y + h/2)*H - lw/2, W, lw);
+    g.lineWidth = lw; g.strokeStyle = COL['1']; g.strokeRect(x*W - lw/2, y*H - lw/2, Math.max(lw, w*W) + lw, Math.max(lw, h*H) + lw);
+  }
+}
+function present(res) {
+  const tok = ++animTok, o = outTo('dec-slot'), typed = $('dec-typed'), lab = $('dec-lab'), cv = $('dec-scan');
+  const clear = () => cv.getContext('2d').clearRect(0, 0, cv.width, cv.height);
+  if (res.error) { clear(); typed.textContent = ''; lab.textContent = 'Not readable'; o.textContent = res.error; return; }
+  let done = false;
+  const finish = () => { if (done || tok !== animTok) return; done = true; clear(); typed.textContent = ''; lab.textContent = 'Decoded text'; o.innerHTML = res.html; };
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { finish(); return; }
+  const b = $('dec-thumb').getBoundingClientRect(), dpr = Math.min(2, window.devicePixelRatio || 1);
+  cv.width = Math.max(1, Math.round(b.width * dpr)); cv.height = Math.max(1, Math.round(b.height * dpr));
+  const chars = Array.from(res.text || ''), cells = res.cells || [], t0 = performance.now();
+  $('dec-stage').onclick = finish;      // a tap skips to the result
+  const frame = now => {
+    if (done || tok !== animTok) return;
+    const p = now - t0, k = Math.min(1, p / SCAN_MS), n = Math.round(k * cells.length);
+    scanFrame(cells, n, cv.width, cv.height, dpr);
+    lab.textContent = p < SCAN_MS ? `Reading the cells · ${n} of ${cells.length}` : 'Decoding';
+    const m = Math.max(0, Math.min(chars.length, Math.round((p - TYPE_FROM) / (ANIM_MS - TYPE_FROM) * chars.length)));
+    typed.innerHTML = esc(chars.slice(0, m).join('')) + (p >= TYPE_FROM ? '<span class="cur"></span>' : '');
+    if (p >= ANIM_MS) finish(); else requestAnimationFrame(frame);
+  };
+  requestAnimationFrame(frame);
+}
+function readFile(f) {
+  if (!f) return;
+  const tok = ++animTok, o = outTo('dec-slot'), thumb = $('dec-thumb');
+  $('dec-stage').hidden = false; $('dec-lab').textContent = 'Opening the image'; $('dec-typed').textContent = ''; o.textContent = '';
+  $('dec-drop-t1').textContent = 'Upload another PNG';
+  const cv = $('dec-scan'); cv.getContext('2d').clearRect(0, 0, cv.width, cv.height);
+  if (thumb.dataset.url) URL.revokeObjectURL(thumb.dataset.url);
+  const url = URL.createObjectURL(f), img = new Image(); thumb.dataset.url = url;
+  img.onerror = () => { if (tok === animTok) present({ error: 'This file could not be opened as an image.' }); };
+  img.onload = () => {
+    if (tok !== animTok) return;
+    thumb.src = url; $('dec-lab').textContent = 'Reading';
+    const go = () => setTimeout(() => { if (tok !== animTok) return; let res; try { res = readUpload(img, f.name); } catch (e) { res = { error: 'Could not read this image.' }; } present(res); }, 30);
+    (thumb.decode ? thumb.decode().catch(() => {}) : Promise.resolve()).then(() => requestAnimationFrame(go));
+  };
+  img.src = url;
 }
 $('enc-go').onclick = runEncode;
 ['enc-cell', 'enc-dir', 'enc-fmt', 'enc-style', 'enc-white'].forEach(id => $(id).onchange = runEncode);
 $('dec-go').onclick = runDecode;
 ['enc-sq-dl', 'enc-dl', 'enc-line-dl', 'enc-fill-dl'].forEach(id => $(id).onclick = savePng);
-$('dec-paint').innerHTML += PAINTINGS.map(P => `<option value="${P.id}">${P.artist}, ${P.title}</option>`).join('');
-$('dec-file').onchange = e => {
-  const f = e.target.files[0]; if (!f) return;
-  const img = new Image(); img.onload = () => readUpload(img, f.name); img.src = URL.createObjectURL(f);
-};
+$('dec-paint').innerHTML += PAINTINGS.map(P => `<option value="${P.id}">${P.artist}, ${P.title}</option>`).join('') + '<option value="own">Your own photo (framed rectangle)</option>';
+$('dec-file').onchange = e => { readFile(e.target.files[0]); };
+(() => {                                // drag and drop on the upload bar
+  const z = $('dec-drop'), on = e => { e.preventDefault(); z.classList.add('over'); }, off = () => z.classList.remove('over');
+  z.addEventListener('dragenter', on); z.addEventListener('dragover', on); z.addEventListener('dragleave', off);
+  z.addEventListener('drop', e => { e.preventDefault(); off(); const f = e.dataTransfer && e.dataTransfer.files[0]; if (f) readFile(f); });
+})();
 fillTables(); runEncode();
 document.querySelectorAll('.ex-img').forEach(cv => { if (cv.dataset.fill) return; const { cells, lang } = encode(cv.dataset.text);
   const st = cv.dataset.style || 'grid', a = [cells, lang, cv.dataset.dir || 'LR', cv.dataset.fmt || 'square'];
