@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Mondrian Code: write any text in red, yellow and blue</title>
-<meta name="description" content="A ternary writing system in Mondrian's colours. Encode human text into a colour painting (square, landscape or portrait; a Mondrian-style composition, Mondrian blocks or a plain grid) and decode it back.">
+<meta name="description" content="A ternary writing system in Mondrian's colours. Encode human text into five outputs at once: a square mosaic, a Mondrian composition, a mosaic inside a famous painting, one line and a code string, and decode them back.">
 <style>
   :root { --r:#DD2222; --y:#FAC901; --b:#225095; --k:#141414; --w:#ffffff; --line:6px; }
   * { box-sizing: border-box; }
@@ -92,6 +92,30 @@
     main { padding: 4px 12px 48px; }
     .tool { padding: 12px; border-width: 4px; }
     .tool, textarea, select { max-width: 100%; }
+  }
+  /* v7 output gallery */
+  .gallery { display:grid; grid-template-columns: 1fr 1fr; gap: 18px; margin: 4px 0 28px; }
+  .card { border: var(--line) solid var(--k); padding: 14px; min-width: 0; }
+  .card.wide { grid-column: 1 / -1; }
+  .card h4 { margin: 0 0 8px; font-size: 18px; display:flex; align-items:center; gap: 10px; flex-wrap: wrap; }
+  .card h4 .n { display:inline-grid; place-items:center; width: 28px; height: 28px; background: var(--k); color:#fff; font-size: 15px; flex: none; }
+  .card canvas { width: auto; max-width: 100%; max-height: 560px; margin: 10px auto 0; }
+  .card .linewrap canvas { max-height: none; max-width: none; margin: 0; }
+  .row.mini > * { flex: 1 1 140px; } .row.mini select { font-size: 15px; padding: 7px; }
+  .picker { display:flex; gap: 8px; overflow-x: auto; padding: 10px 0 4px; -webkit-overflow-scrolling: touch; }
+  .picker button { flex: none; margin: 0; padding: 0; background: #fff; border: 3px solid #fff; outline: 2px solid #ddd; width: 78px; height: 78px; }
+  .picker button img { display:block; width: 72px; height: 72px; object-fit: cover; }
+  .picker button[aria-pressed=true] { border-color: #fff; outline: 4px solid var(--r); }
+  .seg { display:flex; margin-top: 10px; } .seg button { margin: 0; background:#fff; color: var(--k); border: 2px solid var(--k); padding: 8px 14px; }
+  .seg button + button { border-left: 0; } .seg button[aria-pressed=true] { background: var(--k); color:#fff; }
+  .fillwrap { min-height: 120px; }
+  .credit { font-size: 13px; color:#444; margin: 8px 0 0; }
+  .strbox { max-height: 7.5em; overflow-y: auto; border: 2px dashed #ddd; padding: 6px 8px; }
+  button.small { padding: 6px 12px; font-size: 14px; margin-top: 8px; }
+  @media (max-width: 640px) {
+    .gallery { grid-template-columns: 1fr; gap: 14px; }
+    .card { padding: 10px; border-width: 4px; }
+    .card canvas { max-height: 70vh; }
   }
 </style>
 </head>
@@ -190,6 +214,13 @@
     <div class="ex-arrow">↓ paints as a 3:2 canvas</div>
     <canvas class="ex-img" data-text="Composition with red, yellow and blue" data-fmt="landscape" data-style="blocks"></canvas>
   </div>
+  <div class="ex wide">
+    <div class="ex-tag">Text → painting fill (output 3)</div>
+    <div class="ex-text">HELLO MONDRIAN</div>
+    <div class="ex-arrow">↓ fills the tree in Ferdinand Hodler's “Baum am Brienzersee vom Bödeli aus” (1906)</div>
+    <canvas class="ex-img" data-text="Hello Mondrian" data-fill="hodler" data-region="figure" width="1200" height="967"></canvas>
+    <p class="muted" style="margin:8px 0 0">Ferdinand Hodler (died 1918), Kunsthaus Zürich. Image: <a href="https://commons.wikimedia.org/wiki/File:Hodler_-_Baum_am_Brienzersee_vom_B%C3%B6deli_aus_-_1906.jpg">Wikimedia Commons</a>, public domain.</p>
+  </div>
 </div>
 
   </div>
@@ -198,33 +229,66 @@
 <details class="try fold">
   <summary class="c-y">Test it: write and read Mondrian Code</summary>
   <div class="try-body">
-<h3>Write: text → painting</h3>
+<h3>Write: text → five outputs</h3>
 <div class="tool">
   <label for="enc-in"><b>Your text</b> <span class="muted">(English, Deutsch, Français, Русский, 中文, 한국어, 日本語, العربية, עברית, Ελληνικά, हिन्दी, አማርኛ, Kiswahili, Yorùbá…)</span></label>
   <textarea id="enc-in">Hello world</textarea>
   <div class="row">
-    <div><label class="muted" for="enc-cell">Cell size</label>
-      <select id="enc-cell"><option value="40" selected>Small</option><option value="80">Medium</option><option value="140">Large (print)</option></select></div>
     <div><label class="muted" for="enc-lang">Script</label>
       <select id="enc-lang"><option value="" selected>Automatic</option><option value="EN">Latin</option><option value="RU">Cyrillic</option><option value="ZH">Chinese</option><option value="KO">Korean</option><option value="JA">Japanese</option><option value="AR">Arabic</option><option value="HE">Hebrew</option><option value="EL">Greek</option><option value="HI">Hindi</option><option value="GZ">Ge'ez (Amharic)</option></select></div>
     <div><label class="muted" for="enc-dir">Reading direction</label>
       <select id="enc-dir"><option value="LR" selected>→ Left to right</option><option value="RL">← Right to left</option><option value="TB">↓ Top to bottom</option><option value="BT">↑ Bottom to top</option></select></div>
-    <div><label class="muted" for="enc-fmt">Format</label>
-      <select id="enc-fmt"><option value="square" selected>Square</option><option value="landscape">Landscape (3:2)</option><option value="portrait">Portrait (2:3)</option></select></div>
-    <div><label class="muted" for="enc-style">Style</label>
-      <select id="enc-style"><option value="composition" selected>Composition</option><option value="blocks">Mondrian blocks</option><option value="grid">Grid</option></select></div>
-    <div><label class="muted" for="enc-white">White space (Composition)</label>
-      <select id="enc-white"><option value="normal" selected>Normal (about 60%)</option><option value="more">More (about 70%)</option></select></div>
+    <div><label class="muted" for="enc-cell">Cell size (outputs 1, 2)</label>
+      <select id="enc-cell"><option value="40" selected>Small</option><option value="80">Medium</option><option value="140">Large (print)</option></select></div>
   </div>
   <button id="enc-go">Paint it</button>
-  <a class="btn ghost" id="enc-dl" href="#">Download PNG</a>
-  <canvas id="enc-canvas" width="10" height="10"></canvas>
-  <p class="muted" id="enc-info"></p>
-  <p class="muted">Code string (paste it into the reader below): <span class="mono" id="enc-str"></span></p>
-  <h3 style="margin-top:22px">The same text as one line <span class="muted" style="font-weight:400">(read left to right, no direction key)</span></h3>
-  <div class="linewrap"><canvas id="enc-line" width="10" height="10"></canvas></div>
-  <a class="btn ghost" id="enc-line-dl" href="#">Download line PNG</a>
-  <p class="muted">Line code string: <span class="mono" id="enc-line-str"></span></p>
+</div>
+
+<div class="gallery">
+  <section class="card" id="out-1">
+    <h4><span class="n">1</span>Square mosaic</h4>
+    <canvas id="enc-sq" width="10" height="10"></canvas>
+    <p class="muted" id="enc-sq-info"></p>
+    <a class="btn ghost" id="enc-sq-dl" href="#">Download PNG</a>
+  </section>
+  <section class="card" id="out-2">
+    <h4><span class="n">2</span>Mondrian composition</h4>
+    <div class="row mini">
+      <div><label class="muted" for="enc-style">Style</label>
+        <select id="enc-style"><option value="composition" selected>Composition</option><option value="blocks">Mondrian blocks</option><option value="grid">Grid</option></select></div>
+      <div><label class="muted" for="enc-fmt">Format</label>
+        <select id="enc-fmt"><option value="square" selected>Square</option><option value="landscape">Landscape (3:2)</option><option value="portrait">Portrait (2:3)</option></select></div>
+      <div><label class="muted" for="enc-white">White space</label>
+        <select id="enc-white"><option value="normal" selected>Normal (about 60%)</option><option value="more">More (about 70%)</option></select></div>
+    </div>
+    <canvas id="enc-canvas" width="10" height="10"></canvas>
+    <p class="muted" id="enc-info"></p>
+    <a class="btn ghost" id="enc-dl" href="#">Download PNG</a>
+  </section>
+  <section class="card wide" id="out-3">
+    <h4><span class="n">3</span>Inside a famous painting</h4>
+    <p class="muted" style="margin:0">Public-domain works shown in <a href="https://www.kunsthaus.ch/besuch-planen/ausstellungen/ikonen/">“Ikonen”</a> at Kunsthaus Zürich. The code fills one part of the painting; the rest stays visible.</p>
+    <div class="picker" id="pick" role="group" aria-label="Painting"></div>
+    <div class="seg" role="group" aria-label="Region"><button type="button" id="reg-figure" aria-pressed="true">Figure</button><button type="button" id="reg-background" aria-pressed="false">Background</button></div>
+    <div class="fillwrap"><canvas id="enc-fill" width="10" height="10"></canvas></div>
+    <p class="credit" id="enc-fill-credit"></p>
+    <p class="muted" id="enc-fill-info"></p>
+    <a class="btn ghost" id="enc-fill-dl" href="#">Download PNG</a>
+  </section>
+  <section class="card wide" id="out-4">
+    <h4><span class="n">4</span>One line <span class="muted" style="font-weight:400">(read left to right, no direction key)</span></h4>
+    <div class="linewrap"><canvas id="enc-line" width="10" height="10"></canvas></div>
+    <a class="btn ghost" id="enc-line-dl" href="#">Download line PNG</a>
+  </section>
+  <section class="card wide" id="out-5">
+    <h4><span class="n">5</span>Code string</h4>
+    <p class="muted" style="margin:4px 0 2px">The text (as the line, R Y B colours, W white, K black):</p>
+    <div class="mono strbox" id="enc-line-str"></div>
+    <button type="button" class="ghost small" data-copy="enc-line-str">Copy</button>
+    <p class="muted" style="margin:14px 0 2px">Painting 2 with its key (paste it into the reader below):</p>
+    <div class="mono strbox" id="enc-str"></div>
+    <button type="button" class="ghost small" data-copy="enc-str">Copy</button>
+  </section>
 </div>
 
 <h3>Read: painting → text</h3>
@@ -232,7 +296,9 @@
   <div class="row">
     <div><label for="dec-lang"><b>Script</b> <span class="muted">(found automatically from the key)</span></label>
       <select id="dec-lang"><option value="">Automatic</option><option value="EN">Latin</option><option value="RU">Cyrillic</option><option value="ZH">Chinese</option><option value="KO">Korean</option><option value="JA">Japanese</option><option value="AR">Arabic</option><option value="HE">Hebrew</option><option value="EL">Greek</option><option value="HI">Hindi</option><option value="GZ">Ge'ez (Amharic)</option></select></div>
-    <div><label for="dec-file"><b>Upload a painting or a line</b> <span class="muted">(PNG made on this page)</span></label>
+    <div><label for="dec-paint"><b>Read a painting fill</b> <span class="muted">(output 3)</span></label>
+      <select id="dec-paint"><option value="">Automatic</option></select></div>
+    <div><label for="dec-file"><b>Upload a PNG made on this page</b> <span class="muted">(painting, line or painting fill)</span></label>
       <input type="file" id="dec-file" accept="image/*"></div>
   </div>
   <label for="dec-in"><b>…or paste a code string</b> <span class="muted">(R Y B for colours, W white, K black)</span></label>
@@ -257,6 +323,11 @@
 <p><b>7. Any other character still fits.</b> A special escape code is followed by the character's Unicode number in two 6-cell parts, so emoji and rare characters survive too.</p>
 <p><b>8. Mondrian blocks: neighbours of one colour merge.</b> In the blocks style, cells of the same colour that touch are drawn as one larger rectangle, without the black lines between them, so the painting looks more like a Mondrian. It is the idea of <b>run-length encoding</b> (RLE) in compression: a run of identical values is stored once, as one block. Each same-colour area is split into rectangles, largest first, so an L-shaped area becomes two blocks with a line between them. Only the picture changes: the cells underneath are the same, and the reader still samples the centre of every cell.</p>
 <p><b>9. Composition: white rectangles and long black lines.</b> Mondrian's own canvases are mostly off-white, with a few colour planes and black lines of different thickness that run across the whole picture. The Composition style (the default) gets closer to that. Before the text is laid out, the encoder reserves 2 to 4 white rectangles of different sizes and makes the grid big enough that about 60% of the cells are white (70% with <i>White space: More</i>). The text then flows around the rectangles in reading order, and a letter is never split: if the next letter does not fit before a reserved cell, white fillers are added until it does. <b>The white rectangles are fillers</b>: each reserved cell follows a marker, so by rule 4 the reader skips it, and nothing in the reader had to change. Then 2 to 5 black lines run along cell borders, edge to edge or up to another line, some thick and some thin, mostly along the edges of the white rectangles. <b>The lines are decoration on the lattice</b>: they sit on cell borders, are never thicker than about a third of a cell, and never touch a cell centre, where the reader looks. They are chosen from the code itself, so the same text always paints the same way. Like most Mondrians, the picture has no thick frame. Short texts look most like Mondrian; long texts stop growing at 40 cells a side and stay colour-dense. To be clear, the lines carry no data here. A “true” Mondrian, where the position and thickness of the lines themselves would carry the text, is a separate research track.</p>
+
+<p><b>10. Painting fills: the code inside a famous painting.</b> Output 3 lays the same cells on a square lattice over one part of a real painting, the figure or the background, and leaves the rest of the painting visible. The page stores each part as a polygon. Every lattice cell whose centre falls inside the polygon belongs to the code, read row by row from the top left (or in the reading direction you chose). The 8-cell direction key comes first, then the text, and the spare cells are white fillers, drawn as a light veil so the painting shows through. The cell size is picked automatically: the largest cell that holds the whole message. This is an art output. A stranger with only the picture could not tell where the code starts; this page can read it back because it knows the painting, the polygon and the lattice (the cell size is also in the file name). The paintings are public-domain works shown in the Kunsthaus Zürich exhibition “Ikonen”; the images come from Wikimedia Commons.</p>
+
+<h2 class="r">Five outputs</h2>
+<p>The encoder shows every text in five ways at once, and each one can be saved as a PNG: <b>1. Square mosaic</b>, the plain grid; <b>2. Mondrian composition</b>, with white rectangles and long black lines (or Mondrian blocks, or a grid, in three formats); <b>3. Inside a famous painting</b>, the code filling a figure or the background; <b>4. One line</b>, for borders and signatures; <b>5. Code string</b>, the same cells written as the letters R Y B W K. All five carry the same cells, so they all read back to the same text.</p>
 
 <h2 class="y">Where the ideas come from</h2>
 <p>Nothing here is new on its own. Each rule borrows one idea that already runs the digital world, which is what makes the code a good teaching tool.</p>
@@ -285,7 +356,7 @@
   <tr><td>Fixed ternary, 3 trits</td><td>3</td><td>3</td><td>4.75 bits</td><td>88%</td></tr>
   <tr><td>Ternary Huffman, no separators</td><td>3</td><td>2.70</td><td>4.28 bits</td><td>97%</td></tr>
   <!-- <tr><td>Mondrian Code v1 (3 cells + marker)</td><td>5</td><td>4</td><td>9.29 bits</td><td>45%</td></tr> -->
-  <tr><td><b>Mondrian Code v6</b> (1.89 colour cells + marker)</td><td>5</td><td><b>2.89</b></td><td>6.71 bits</td><td>62%</td></tr>
+  <tr><td><b>Mondrian Code</b> (1.89 colour cells + marker)</td><td>5</td><td><b>2.89</b></td><td>6.71 bits</td><td>62%</td></tr>
 </table></div>
 <p><b>What the numbers say.</b> Mondrian Code needs the <b>fewest squares</b> of any code here that a person can read by eye: 2.89 per letter, against 4.20 bits for the best binary Huffman code (31% fewer) and 8 for ASCII (64% fewer). That is the advantage of three colours over two. But each square can show 5 states, and the white and black markers use part of that capacity, so in pure information terms it is about <b>62% efficient</b>, where Huffman codes reach 97–99%. The markers are what you pay for being able to see where every letter ends and to recover after a misread cell. In real text the gap narrows: about one character in six is a space, which binary codes must store and Mondrian Code gets free inside the black marker.</p>
 
@@ -324,7 +395,7 @@
 </details>
 </main>
 <footer>
-  <span>Mondrian Code v6 · designed by <a href="https://nickgushchin.github.io">Nick Gushchin</a> · October 2026</span>
+  <span>Mondrian Code v7 · designed by <a href="https://nickgushchin.github.io">Nick Gushchin</a> · October 2026</span>
   <a class="ghfoot" href="https://github.com/nickgushchin/mondrian-code"><svg class="gh" viewBox="0 0 16 16" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg> github.com/nickgushchin/mondrian-code</a>
 </footer>
 
@@ -715,6 +786,79 @@ const codeString = (cells, W, H) => {    // squares and lines stay one flat stri
   return (H > 1 && W !== H) ? s.match(new RegExp(`.{${W}}`, 'g')).join('/') : s;
 };
 
+// ---- v7 painting fills ---------------------------------------------------------
+// Public-domain paintings (Wikimedia Commons) shown in the Kunsthaus Zürich exhibition "Ikonen". Each has two regions,
+// polygons in coordinates 0–1 of the image ("inc" rings minus "exc" rings). The code fills a square lattice clipped to the
+// region: every lattice cell whose centre lies inside, in reading order. The page knows the mask, so it can read the PNG back.
+const PAINTINGS = [{"id":"hodler","title":"Baum am Brienzersee vom Bödeli aus","artist":"Ferdinand Hodler","year":"1906","died":1918,"w":1200,"h":967,"commons":"https://commons.wikimedia.org/wiki/File:Hodler_-_Baum_am_Brienzersee_vom_B%C3%B6deli_aus_-_1906.jpg","lic":"public domain (PD-old)","where":"Kunsthaus Zürich, gift 2023","regions":{"figure":{"label":"The tree","inc":[[0.588,0.787,0.552,0.792,0.547,0.831,0.519,0.878,0.587,0.878],[0.257,0.113,0.217,0.143,0.212,0.168,0.185,0.19,0.177,0.216,0.158,0.215,0.146,0.258,0.159,0.28,0.139,0.295,0.147,0.322,0.123,0.358,0.125,0.391,0.109,0.397,0.114,0.433,0.095,0.477,0.096,0.503,0.112,0.519,0.098,0.582,0.107,0.587,0.129,0.645,0.123,0.681,0.147,0.732,0.176,0.752,0.189,0.781,0.234,0.792,0.247,0.809,0.252,0.843,0.301,0.865,0.322,0.833,0.357,0.842,0.36,0.824,0.377,0.827,0.371,0.86,0.345,0.866,0.343,0.878,0.491,0.878,0.494,0.846,0.516,0.845,0.519,0.826,0.49,0.821,0.487,0.778,0.501,0.777,0.502,0.798,0.51,0.798,0.503,0.787,0.51,0.733,0.537,0.731,0.556,0.761,0.578,0.752,0.586,0.704,0.571,0.686,0.573,0.66,0.627,0.674,0.626,0.723,0.638,0.723,0.651,0.74,0.702,0.736,0.715,0.63,0.781,0.618,0.787,0.542,0.807,0.522,0.801,0.429,0.773,0.406,0.731,0.414,0.718,0.368,0.723,0.323,0.715,0.308,0.715,0.262,0.685,0.206,0.665,0.191,0.639,0.201,0.608,0.193,0.598,0.155,0.552,0.127,0.475,0.126,0.463,0.115,0.367,0.097,0.305,0.105,0.286,0.119]],"exc":[]},"background":{"label":"Sky","inc":[[0.0,0.0,0.0,0.24,0.028,0.252,0.052,0.282,0.052,0.338,0.075,0.401,0.096,0.404,0.108,0.359,0.131,0.336,0.129,0.297,0.142,0.282,0.138,0.247,0.152,0.211,0.172,0.205,0.208,0.162,0.215,0.137,0.246,0.109,0.283,0.111,0.355,0.09,0.392,0.091,0.463,0.109,0.473,0.12,0.522,0.113,0.549,0.121,0.602,0.152,0.604,0.178,0.615,0.189,0.667,0.185,0.688,0.199,0.726,0.261,0.723,0.363,0.737,0.407,0.777,0.4,0.807,0.424,0.815,0.522,0.794,0.546,0.789,0.623,0.736,0.628,0.723,0.638,0.72,0.673,0.768,0.667,0.794,0.677,0.798,0.657,0.809,0.657,0.823,0.635,0.844,0.631,0.834,0.681,0.874,0.665,0.894,0.691,0.999,0.682,0.999,0.019,0.986,0.021,0.963,0.0]],"exc":[]}}},{"id":"mondrian","title":"Composition with Red, Blue and Yellow","artist":"Piet Mondrian","year":"1930","died":1944,"w":1190,"h":1200,"commons":"https://commons.wikimedia.org/wiki/File:Piet_Mondriaan,_1930_-_Mondrian_Composition_II_in_Red,_Blue,_and_Yellow.jpg","lic":"public domain (PD-Art)","where":"Kunsthaus Zürich, gift of Alfred Roth 1987","regions":{"figure":{"label":"Red plane","inc":[[0.252,0.006,0.994,0.006,0.994,0.712,0.252,0.712]],"exc":[]},"background":{"label":"White planes","inc":[[0.006,0.006,0.206,0.006,0.206,0.29,0.006,0.29],[0.006,0.362,0.206,0.362,0.206,0.714,0.006,0.714],[0.252,0.756,0.882,0.756,0.882,0.994,0.252,0.994],[0.93,0.756,0.994,0.756,0.994,0.846,0.93,0.846]],"exc":[]}}},{"id":"fuseli","title":"Titania liebkost Zettel mit dem Eselskopf","artist":"Johann Heinrich Füssli","year":"1793–94","died":1825,"w":961,"h":1200,"commons":"https://commons.wikimedia.org/wiki/File:Johann_Heinrich_F%C3%BCssli_-_Titania_liebkost_den_eselk%C3%B6pfigen_Bottom.jpg","lic":"public domain (PD-Art)","where":"Kunsthaus Zürich, 1941","regions":{"figure":{"label":"Titania and Bottom","inc":[[0.364,0.178,0.37,0.207,0.413,0.268,0.362,0.276,0.348,0.32,0.354,0.347,0.346,0.373,0.33,0.372,0.325,0.333,0.312,0.331,0.279,0.407,0.144,0.479,0.103,0.486,0.107,0.651,0.123,0.651,0.127,0.662,0.076,0.672,0.029,0.705,0.029,0.713,0.042,0.715,0.038,0.747,0.076,0.748,0.134,0.726,0.297,0.745,0.39,0.738,0.415,0.718,0.417,0.685,0.404,0.665,0.366,0.659,0.362,0.626,0.374,0.625,0.399,0.646,0.463,0.667,0.487,0.745,0.461,0.822,0.464,0.855,0.505,0.883,0.57,0.887,0.585,0.873,0.572,0.726,0.599,0.723,0.631,0.682,0.633,0.663,0.734,0.647,0.766,0.61,0.755,0.585,0.722,0.586,0.72,0.607,0.684,0.607,0.711,0.564,0.734,0.563,0.735,0.541,0.722,0.54,0.721,0.558,0.709,0.558,0.697,0.511,0.711,0.508,0.736,0.461,0.753,0.46,0.748,0.437,0.737,0.436,0.735,0.407,0.717,0.404,0.715,0.392,0.693,0.383,0.666,0.383,0.643,0.351,0.643,0.306,0.662,0.304,0.664,0.283,0.694,0.271,0.688,0.243,0.697,0.212,0.712,0.209,0.72,0.172,0.703,0.175,0.7,0.192,0.683,0.197,0.682,0.215,0.663,0.216,0.636,0.249,0.624,0.248,0.62,0.236,0.578,0.224,0.581,0.202,0.552,0.179,0.516,0.172,0.475,0.179,0.448,0.206,0.446,0.217,0.431,0.218,0.377,0.179]],"exc":[]},"background":{"label":"The night","inc":[[0.0,0.0,0.0,0.366,0.028,0.316,0.023,0.263,0.033,0.243,0.02,0.213,0.034,0.182,0.029,0.133,0.047,0.098,0.05,0.067,0.067,0.04,0.115,0.037,0.127,0.044,0.132,0.081,0.216,0.083,0.226,0.112,0.279,0.127,0.287,0.15,0.32,0.151,0.326,0.202,0.316,0.242,0.327,0.259,0.326,0.295,0.308,0.301,0.308,0.31,0.333,0.319,0.335,0.328,0.346,0.328,0.363,0.274,0.412,0.268,0.369,0.207,0.363,0.178,0.377,0.178,0.422,0.212,0.442,0.206,0.492,0.162,0.508,0.111,0.529,0.095,0.536,0.063,0.547,0.062,0.562,0.091,0.605,0.117,0.614,0.157,0.647,0.177,0.649,0.212,0.66,0.212,0.703,0.171,0.725,0.164,0.716,0.217,0.737,0.223,0.747,0.248,0.768,0.247,0.81,0.208,0.814,0.187,0.828,0.187,0.822,0.247,0.806,0.266,0.778,0.276,0.776,0.292,0.845,0.299,0.872,0.357,0.91,0.366,0.935,0.384,0.924,0.412,0.908,0.417,0.91,0.443,0.891,0.451,0.889,0.467,0.878,0.467,0.752,0.398,0.718,0.37,0.701,0.333,0.664,0.333,0.66,0.373,0.725,0.398,0.754,0.447,0.754,0.47,0.734,0.473,0.708,0.516,0.71,0.558,0.72,0.558,0.721,0.538,0.746,0.538,0.745,0.564,0.712,0.569,0.69,0.602,0.703,0.602,0.723,0.578,0.759,0.578,0.762,0.538,0.773,0.539,0.771,0.598,0.753,0.634,0.736,0.647,0.635,0.663,0.632,0.682,0.6,0.723,0.572,0.729,0.586,0.873,0.57,0.888,0.505,0.884,0.463,0.855,0.46,0.822,0.486,0.759,0.479,0.717,0.458,0.663,0.386,0.648,0.375,0.627,0.364,0.627,0.366,0.647,0.393,0.648,0.394,0.662,0.418,0.685,0.416,0.718,0.39,0.738,0.289,0.746,0.134,0.727,0.072,0.75,0.036,0.746,0.04,0.723,0.028,0.705,0.076,0.672,0.108,0.662,0.105,0.574,0.074,0.573,0.075,0.554,0.105,0.553,0.108,0.512,0.092,0.504,0.052,0.504,0.052,0.485,0.064,0.484,0.064,0.476,0.032,0.462,0.021,0.438,0.0,0.422,0.0,0.999,0.835,0.999,0.828,0.947,0.848,0.923,0.848,0.902,0.898,0.866,0.917,0.875,0.92,0.959,0.948,0.973,0.991,0.981,0.98,0.999,0.999,0.999,0.999,0.0]],"exc":[[0.128,0.758,0.171,0.765,0.208,0.783,0.231,0.778,0.244,0.792,0.273,0.794,0.295,0.781,0.297,0.787,0.318,0.788,0.318,0.802,0.358,0.796,0.406,0.802,0.402,0.813,0.36,0.812,0.282,0.833,0.276,0.862,0.341,0.924,0.35,0.95,0.339,0.95,0.256,0.888,0.244,0.888,0.23,0.903,0.221,0.927,0.186,0.94,0.186,0.908,0.221,0.864,0.216,0.823,0.154,0.783,0.123,0.782],[0.789,0.745,0.766,0.864,0.751,0.876,0.716,0.948,0.685,0.972,0.678,0.993,0.667,0.994,0.659,0.963,0.616,0.957,0.607,0.933,0.651,0.88,0.636,0.858,0.636,0.823,0.671,0.782,0.742,0.788,0.77,0.749],[0.898,0.072,0.914,0.073,0.925,0.086,0.958,0.087,0.958,0.098,0.931,0.117,0.924,0.194,0.908,0.192,0.875,0.131,0.874,0.091]]}}},{"id":"boecklin","title":"Der heilige Antonius predigt den Fischen","artist":"Arnold Böcklin","year":"1892","died":1901,"w":1113,"h":1200,"commons":"https://commons.wikimedia.org/wiki/File:B%C3%B6cklin_Der_Heilige_Antonius_1892.jpg","lic":"public domain (PD-Art); upper panel","where":"on view at Kunsthaus Zürich","regions":{"figure":{"label":"Saint Anthony","inc":[[0.465,0.054,0.446,0.075,0.439,0.107,0.481,0.147,0.533,0.15,0.545,0.246,0.522,0.243,0.459,0.199,0.447,0.199,0.444,0.208,0.418,0.207,0.411,0.229,0.428,0.242,0.483,0.244,0.522,0.279,0.533,0.319,0.561,0.319,0.598,0.304,0.616,0.252,0.668,0.278,0.672,0.333,0.658,0.467,0.679,0.627,0.67,0.646,0.622,0.681,0.621,0.698,0.657,0.701,0.721,0.672,0.712,0.608,0.719,0.542,0.726,0.527,0.768,0.507,0.801,0.56,0.819,0.629,0.814,0.656,0.775,0.696,0.775,0.707,0.797,0.715,0.832,0.707,0.868,0.686,0.872,0.672,0.854,0.631,0.842,0.518,0.827,0.476,0.82,0.402,0.829,0.271,0.815,0.227,0.784,0.189,0.774,0.112,0.755,0.087,0.645,0.048,0.601,0.049,0.556,0.083,0.536,0.081,0.526,0.062,0.505,0.051]],"exc":[]},"background":{"label":"Sky and sea","inc":[[0.0,0.0,0.0,0.713,0.015,0.713,0.036,0.677,0.067,0.671,0.073,0.653,0.102,0.626,0.12,0.627,0.128,0.69,0.177,0.713,0.2,0.709,0.257,0.677,0.261,0.662,0.248,0.652,0.222,0.657,0.22,0.672,0.194,0.68,0.174,0.672,0.181,0.652,0.194,0.651,0.196,0.667,0.207,0.667,0.208,0.652,0.248,0.618,0.263,0.621,0.266,0.638,0.301,0.634,0.348,0.588,0.435,0.544,0.458,0.549,0.465,0.568,0.445,0.692,0.482,0.682,0.502,0.647,0.574,0.625,0.671,0.619,0.653,0.468,0.664,0.336,0.656,0.279,0.623,0.265,0.604,0.311,0.562,0.327,0.533,0.328,0.518,0.311,0.512,0.282,0.485,0.253,0.422,0.249,0.404,0.233,0.413,0.203,0.456,0.193,0.483,0.204,0.524,0.24,0.537,0.24,0.527,0.157,0.481,0.152,0.46,0.133,0.43,0.131,0.417,0.112,0.425,0.057,0.438,0.036,0.459,0.024,0.519,0.032,0.521,0.047,0.535,0.048,0.536,0.069,0.562,0.068,0.598,0.045,0.631,0.042,0.756,0.077,0.789,0.119,0.799,0.193,0.824,0.22,0.841,0.269,0.829,0.407,0.84,0.424,0.837,0.48,0.848,0.518,0.873,0.511,0.883,0.477,0.924,0.453,0.924,0.443,0.868,0.42,0.859,0.398,0.859,0.347,0.891,0.328,0.913,0.289,0.98,0.293,0.999,0.286,0.999,0.213,0.993,0.212,0.999,0.0]],"exc":[]}}},{"id":"bonnard","title":"Signac et ses amis en barque","artist":"Pierre Bonnard","year":"about 1924","died":1947,"w":1020,"h":921,"commons":"https://commons.wikimedia.org/wiki/File:Signac_et_ses_amis_en_bateau.jpg","lic":"public domain (PD-Art)","where":"Kunsthaus Zürich, 1932","regions":{"figure":{"label":"The sail","inc":[[0.552,0.0,0.488,0.459,0.501,0.567,0.522,0.567,0.527,0.556,0.552,0.558,0.576,0.543,0.587,0.482,0.603,0.471,0.638,0.472,0.671,0.531,0.692,0.533,0.835,0.491,0.837,0.48,0.888,0.472,0.991,0.423,0.901,0.197,0.855,0.05,0.849,0.0]],"exc":[]},"background":{"label":"The sea","inc":[[0.999,0.432,0.944,0.451,0.915,0.469,0.914,0.478,0.875,0.485,0.87,0.508,0.857,0.518,0.839,0.518,0.837,0.503,0.807,0.505,0.793,0.536,0.781,0.534,0.781,0.522,0.763,0.528,0.772,0.593,0.771,0.661,0.79,0.699,0.814,0.708,0.85,0.669,0.858,0.625,0.894,0.59,0.929,0.589,0.938,0.603,0.957,0.609,0.971,0.633,0.999,0.643],[0.499,0.307,0.271,0.316,0.27,0.296,0.043,0.296,0.037,0.352,0.0,0.38,0.0,0.876,0.039,0.849,0.087,0.729,0.101,0.728,0.102,0.718,0.143,0.712,0.208,0.606,0.219,0.491,0.254,0.479,0.264,0.507,0.274,0.507,0.283,0.494,0.329,0.484,0.342,0.499,0.39,0.51,0.398,0.391,0.381,0.38,0.382,0.364,0.399,0.336,0.429,0.328,0.461,0.353,0.466,0.391,0.485,0.4,0.498,0.356]],"exc":[]}}},{"id":"vangogh","title":"La Maison du Père Pilon","artist":"Vincent van Gogh","year":"1890","died":1890,"w":1200,"h":869,"commons":"https://commons.wikimedia.org/wiki/File:Van_Gogh_-_Das_Haus_von_P%C3%A8re_Pilon.jpeg","lic":"public domain (PD-old)","where":"private collection, on loan","regions":{"figure":{"label":"The tree","inc":[[0.416,0.197,0.403,0.22,0.396,0.281,0.432,0.319,0.437,0.352,0.412,0.369,0.399,0.413,0.4,0.438,0.432,0.481,0.46,0.484,0.477,0.542,0.54,0.612,0.547,0.688,0.69,0.693,0.709,0.737,0.774,0.735,0.777,0.66,0.786,0.647,0.815,0.637,0.832,0.619,0.832,0.604,0.821,0.581,0.822,0.54,0.808,0.536,0.791,0.471,0.802,0.425,0.789,0.38,0.787,0.319,0.764,0.289,0.726,0.268,0.729,0.247,0.755,0.247,0.771,0.226,0.77,0.176,0.744,0.121,0.668,0.072,0.613,0.102,0.561,0.092,0.538,0.147,0.46,0.183,0.434,0.181]],"exc":[]},"background":{"label":"Sky","inc":[[0.022,0.0,0.021,0.115,0.069,0.129,0.081,0.141,0.089,0.23,0.124,0.336,0.141,0.417,0.173,0.417,0.198,0.386,0.229,0.405,0.258,0.403,0.272,0.382,0.323,0.402,0.391,0.395,0.428,0.343,0.428,0.326,0.39,0.285,0.389,0.245,0.398,0.24,0.398,0.217,0.433,0.172,0.466,0.17,0.536,0.143,0.564,0.081,0.614,0.096,0.662,0.064,0.7,0.078,0.757,0.129,0.774,0.179,0.773,0.243,0.812,0.247,0.838,0.22,0.865,0.22,0.88,0.283,0.925,0.307,0.937,0.353,0.956,0.384,0.958,0.412,0.999,0.415,0.999,0.0]],"exc":[]}}}];
+const FILL_MIN = 6, FILL_CELLS = 150, VEIL = 'rgba(255,255,255,0.7)', fillCache = {};
+function inRing(x, y, r) { let c = false; for (let i = 0, j = r.length - 2; i < r.length; j = i, i += 2) { const xi = r[i], yi = r[i+1], xj = r[j], yj = r[j+1]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c; } return c; }
+function inRegion(reg, x, y) {
+  if (!reg.bb) { const xs = [], ys = []; reg.inc.forEach(r => r.forEach((v, i) => (i % 2 ? ys : xs).push(v))); reg.bb = [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)]; }
+  const b = reg.bb; if (x < b[0] || x > b[2] || y < b[1] || y > b[3]) return false;
+  return reg.inc.some(r => inRing(x, y, r)) && !reg.exc.some(r => inRing(x, y, r));
+}
+const paintingById = id => PAINTINGS.find(P => P.id === id);
+function lattice(P, s) { const C = Math.floor(P.w / s), R = Math.floor(P.h / s); return { s, C, R, ox: (P.w - C*s) >> 1, oy: (P.h - R*s) >> 1 }; }   // centred on the image
+function fillMask(P, rn, s) {        // 1 for every lattice cell whose centre lies inside the region
+  const key = P.id + '/' + rn + '/' + s; if (fillCache[key]) return fillCache[key];
+  const reg = P.regions[rn], { C, R, ox, oy } = lattice(P, s), m = new Uint8Array(C*R); let n = 0;
+  for (let r = 0; r < R; r++) { const y = (oy + (r + 0.5)*s) / P.h; for (let c = 0; c < C; c++) if (inRegion(reg, (ox + (c + 0.5)*s) / P.w, y)) { m[r*C + c] = 1; n++; } }
+  m.n = n; return fillCache[key] = m;
+}
+function fillCells(P, rn, s, dir = 'LR') { const { C, R } = lattice(P, s), m = fillMask(P, rn, s); return order(C, R, dir).filter(i => m[i]); }
+function fillLayout(cells, lang, P, rn, dir = 'LR') {   // largest cell size that holds key + text (and at least FILL_CELLS cells, so the shape still reads)
+  const need = cells.length + 8;
+  for (let s = Math.min(P.w, P.h) >> 2; s >= FILL_MIN; s--) {
+    const n = fillMask(P, rn, s).n; if (n < Math.max(need, FILL_CELLS)) continue;
+    const stream = [...KEY, ...KEY_SCRIPT[lang], ...spreadFillers(cells, n - need)];   // key first, then the text with white fillers spread at character boundaries
+    return { P, rn, dir, lang, stream, idx: fillCells(P, rn, s, dir), ...lattice(P, s) };
+  }
+  return null;     // too long for this region
+}
+const isFiller = (st, j) => st[j] === 'W' && (j === 8 || st[j-1] === 'W' || st[j-1] === 'K');   // a white after a marker (or right after the key) carries nothing
+function paintFill(canvas, img, F) {    // the painting, the code cells on its lattice (fillers as a white veil), thin black lattice lines
+  const { P, s, C, R, ox, oy, idx, stream } = F, m = fillMask(P, F.rn, s), L = Math.max(2, Math.round(s / 12)), h = L >> 1;
+  canvas.width = P.w; canvas.height = P.h;
+  const g = canvas.getContext('2d'); g.drawImage(img, 0, 0, P.w, P.h);
+  idx.forEach((i, j) => { g.fillStyle = isFiller(stream, j) ? VEIL : COL[stream[j]]; g.fillRect(ox + (i % C)*s, oy + Math.floor(i / C)*s, s, s); });
+  g.fillStyle = COL.K;
+  idx.forEach(i => { const c = i % C, r = Math.floor(i / C), x = ox + c*s, y = oy + r*s;
+    g.fillRect(x - h, y - h, s + L, L); g.fillRect(x - h, y - h, L, s + L);
+    if (r + 1 >= R || !m[i + C]) g.fillRect(x - h, y + s - h, s + L, L);
+    if (c + 1 >= C || !m[i + 1]) g.fillRect(x + s - h, y - h, L, s + L); });
+}
+const fillName = F => `mondrian-code-${F.P.id}-${F.rn}-s${F.s}.png`;
+const parseFillName = name => { const m = /mondrian-code-([a-z]+)-(figure|background)-s(\d+)/.exec(name || ''); return m && paintingById(m[1]) ? { P: paintingById(m[1]), rn: m[2], s: +m[3] } : null; };
+function fitsPainting(P, Wpx, Hpx) { const k = Wpx / P.w; return Math.abs(Hpx - P.h * k) <= Math.max(1.5, 0.004 * Hpx); }
+function readFillPixels(Wpx, Hpx, px, cands) {   // cands: [{ P, rn, s? }] -> best { text, dir, lang, P, rn, s, cells } or null
+  const pal = Object.entries(COL).map(([k,h]) => [k,[1,3,5].map(i=>parseInt(h.slice(i,i+2),16))]);
+  const nearest = p => pal.reduce((best,[k,c]) => { const d=(p[0]-c[0])**2+(p[1]-c[1])**2+(p[2]-c[2])**2; return d<best[1]?[k,d]:best; }, ['',1e9]);
+  let best = null;
+  for (const { P, rn, s: s0 } of cands) {
+    if (!fitsPainting(P, Wpx, Hpx)) continue;
+    const k = Wpx / P.w, top = Math.min(P.w, P.h) >> 2;
+    for (let s = s0 || FILL_MIN; s <= (s0 || top); s++) {
+      const { C, R, ox, oy } = lattice(P, s), m = fillMask(P, rn, s); if (m.n < 9) continue;
+      const at = i => px((ox + (i % C + 0.5)*s)*k, (oy + (Math.floor(i / C) + 0.5)*s)*k);
+      for (const dir of Object.keys(DIRS)) {
+        const idx = fillCells(P, rn, s, dir); let key = '';
+        for (let j = 0; j < 8 && key !== null; j++) { const [c, d] = nearest(at(idx[j])); key = d > 9000 ? null : key + c; }
+        if (key === null || key.slice(0, 5) !== KEY) continue;
+        const lang = Object.keys(KEY_SCRIPT).find(l => KEY_SCRIPT[l] === key.slice(5)); if (!lang) continue;
+        let lines = 0; const probe = idx.slice(0, 400);     // the lattice check: a dark line on the left border of each cell
+        for (const i of probe) { const p = px((ox + (i % C)*s)*k, (oy + (Math.floor(i / C) + 0.5)*s)*k); if (p[0]+p[1]+p[2] <= 200) lines++; }
+        const cells = idx.map(i => nearest(at(i))[0]), rest = cells.slice(8);
+        let run = 0, bad = 0; for (const c of rest) { run = (c === 'W' || c === 'K') ? 0 : run + 1; if (run > 7) bad++; }
+        const text = decodeStream(rest, lang);
+        bad += (text.match(/�/g) || []).length + (lines < 0.9 * probe.length ? 1000 : 0);
+        if (!best || bad < best.bad) best = { text, dir, lang, P, rn, s, cells, bad };
+      }
+    }
+  }
+  return best;
+}
+
 // ---- UI --------------------------------------------------------------------
 const $ = id => document.getElementById(id);
 function swatches(code) { return [...code].map(c => `<span class="sw ${NAME[c]}"></span>`).join(''); }
@@ -754,24 +898,68 @@ function savePng(e) {
   a.href = url; a.download = f.name; document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 4000);
 }
+let ENC = null;   // the last encoded text, shared by the five outputs
 function runEncode() {
-  const { cells, lang, skipped } = encode($('enc-in').value, $('enc-lang').value || undefined);
+  ENC = encode($('enc-in').value, $('enc-lang').value || undefined);
+  const { cells, lang, skipped } = ENC, dir = $('enc-dir').value, S = +$('enc-cell').value;
   if (!cells.length) { $('enc-info').textContent = 'Type some text first.'; return; }
-  const style = $('enc-style').value, comp = style === 'composition';
-  const { grid, W, H, pad, keyAt, rects } = comp ? compose(cells, lang, $('enc-dir').value, $('enc-fmt').value, $('enc-white').value) : square(cells, lang, $('enc-dir').value, $('enc-fmt').value);
-  paint($('enc-canvas'), grid, W, H, +$('enc-cell').value, style);
+  const warn = skipped.length ? ` · <span class="warn">skipped: ${skipped.join(' ')}</span>` : '';
+  const q = square(cells, lang, dir, 'square');     // 1: the square mosaic (v4 grid)
+  paint($('enc-sq'), q.grid, q.W, q.H, S, 'grid');
+  prepPng('enc-sq-dl', $('enc-sq'), 'mondrian-code-mosaic.png');
+  $('enc-sq-info').innerHTML = `${SCRIPT[lang]} · ${DIRS[dir].toLowerCase()} · ${q.W} × ${q.H} grid, key at cell ${q.keyAt}` + warn;
+  const style = $('enc-style').value, comp = style === 'composition';   // 2: the Mondrian composition (v6)
+  const { grid, W, H, pad, keyAt, rects } = comp ? compose(cells, lang, dir, $('enc-fmt').value, $('enc-white').value) : square(cells, lang, dir, $('enc-fmt').value);
+  paint($('enc-canvas'), grid, W, H, S, style);
   $('enc-canvas').classList.toggle('comp', comp);
   const white = Math.round(100 * grid.filter(c => c === 'W').length / grid.length);
   prepPng('enc-dl', $('enc-canvas'), 'mondrian-code.png');
-  $('enc-info').innerHTML = `${SCRIPT[lang]} · ${DIRS[$('enc-dir').value].toLowerCase()} · ${cells.length} text cells + 8 key cells (at cell ${keyAt}) + ${pad} empty = ${W} × ${H} · ${white}% white` +
+  $('enc-info').innerHTML = `${cells.length} text cells + 8 key cells (at cell ${keyAt}) + ${pad} empty = ${W} × ${H} · ${white}% white` +
     (comp ? ` · ${rects.length} white rectangles, ${compLines(grid, W, H).length} long lines` : '') +
-    (style === 'blocks' ? ` · ${blocks(grid, W, H).length} blocks` : '') +
-    (skipped.length ? ` · <span class="warn">skipped: ${skipped.join(' ')}</span>` : '');
+    (style === 'blocks' ? ` · ${blocks(grid, W, H).length} blocks` : '') + warn;
   $('enc-str').textContent = codeString(grid, W, H);
-  paintLine($('enc-line'), cells, 24);
+  paintLine($('enc-line'), cells, 24);    // 4: one line; 5: the code strings
   prepPng('enc-line-dl', $('enc-line'), 'mondrian-code-line.png');
   $('enc-line-str').textContent = cells.map(c => NAME[c]).join('');
+  renderFill();                           // 3: inside a painting (once the section is open)
 }
+// ---- output 3: painting fills (images load only when the section is opened) ----
+const IMG = {}, PICK = { id: 'hodler', rn: 'figure' };
+let fillOn = false, fillTok = 0;
+function loadPainting(P) { return IMG[P.id] ||= new Promise((res, rej) => { const i = new Image(); i.decoding = 'async'; i.onload = () => res(i); i.onerror = rej; i.src = `paintings/${P.id}.jpg`; }); }
+const credit = P => `${P.artist} (died ${P.died}), <i>${P.title}</i>, ${P.year}. ${P.where}. Image: <a href="${P.commons}">Wikimedia Commons</a>, ${P.lic}.`;
+async function renderFill() {
+  if (!fillOn || !ENC || !ENC.cells.length) return;
+  const tok = ++fillTok, P = paintingById(PICK.id), F = fillLayout(ENC.cells, ENC.lang, P, PICK.rn, $('enc-dir').value);
+  $('enc-fill-credit').innerHTML = credit(P);
+  if (!F) { $('enc-fill-info').innerHTML = '<span class="warn">Too long for this part of the painting: try the other region or a shorter text.</span>'; return; }
+  const img = await loadPainting(P); if (tok !== fillTok) return;
+  paintFill($('enc-fill'), img, F);
+  prepPng('enc-fill-dl', $('enc-fill'), fillName(F));
+  const pad = F.idx.length - ENC.cells.length - 8;
+  $('enc-fill-info').textContent = `${P.regions[PICK.rn].label}: ${F.idx.length} cells of ${F.s} px = ${ENC.cells.length} text + 8 key + ${pad} empty (the white veil) · ${DIRS[F.dir].toLowerCase()}`;
+}
+function setPick(id, rn) {
+  if (id) PICK.id = id; if (rn) PICK.rn = rn;
+  document.querySelectorAll('#pick button').forEach(b => b.setAttribute('aria-pressed', b.dataset.id === PICK.id));
+  ['figure', 'background'].forEach(r => { $('reg-' + r).setAttribute('aria-pressed', r === PICK.rn); $('reg-' + r).textContent = paintingById(PICK.id).regions[r].label; });
+  renderFill();
+}
+function openFills() {
+  if (fillOn) return; fillOn = true;
+  $('pick').innerHTML = PAINTINGS.map(P => `<button type="button" data-id="${P.id}" title="${P.artist}, ${P.title}" aria-label="${P.artist}, ${P.title}"><img src="paintings/${P.id}-t.jpg" alt="" width="72" height="72" loading="lazy"></button>`).join('');
+  document.querySelectorAll('#pick button').forEach(b => b.onclick = () => setPick(b.dataset.id));
+  setPick();
+}
+const testFold = $('enc-go').closest('details');
+testFold.addEventListener('toggle', () => { if (testFold.open) openFills(); });
+['figure', 'background'].forEach(r => $('reg-' + r).onclick = () => setPick(null, r));
+document.querySelectorAll('[data-copy]').forEach(b => b.onclick = () => {
+  const t = $(b.dataset.copy).textContent, done = () => { b.textContent = 'Copied'; setTimeout(() => b.textContent = 'Copy', 1500); };
+  if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(t).then(done, () => {});
+  else { const r = document.createRange(); r.selectNodeContents($(b.dataset.copy)); const s = getSelection(); s.removeAllRanges(); s.addRange(r); try { document.execCommand('copy'); done(); } catch (e) {} }
+});
+// ---- reader ----
 function runDecode() {
   const raw = $('dec-in').value.toUpperCase(), s = raw.replace(/[^RYBWK]/g,'');
   if (!s) { $('dec-out').textContent = 'Paste a code string or upload a painting.'; return; }
@@ -781,22 +969,46 @@ function runDecode() {
   $('dec-out').innerHTML = (r.text ? r.text.replace(/</g,'&lt;') : '(nothing to read)') +
     `<div class="muted" style="font-weight:400">${r.dir ? `Key found: ${SCRIPT[r.lang]}, ${r.W} × ${r.H}, read ${DIRS[r.dir].toLowerCase()}` : 'No direction key (a line or an old painting): read left to right as ' + SCRIPT[r.lang] + '; change the Script menu for another script'}</div>`;
 }
+function readFill(img, name) {     // a painting fill: the file name (or the menu) names the painting; otherwise every painting of this shape
+  const Wpx = img.naturalWidth, Hpx = img.naturalHeight, hint = parseFillName(name), sel = $('dec-paint').value;
+  const all = PAINTINGS.filter(P => (!sel || P.id === sel) && fitsPainting(P, Wpx, Hpx)).flatMap(P => ['figure', 'background'].map(rn => ({ P, rn })));
+  if (!all.length && !(hint && fitsPainting(hint.P, Wpx, Hpx))) return null;
+  const cv = document.createElement('canvas'); cv.width = Wpx; cv.height = Hpx;
+  const g = cv.getContext('2d'); g.drawImage(img, 0, 0); const data = g.getImageData(0, 0, Wpx, Hpx).data;
+  const px = (x, y) => { const i = (Math.floor(y)*Wpx + Math.floor(x))*4; return [data[i], data[i+1], data[i+2]]; };
+  let r = hint && readFillPixels(Wpx, Hpx, px, [hint]);
+  if (!r || r.bad >= 1000) r = readFillPixels(Wpx, Hpx, px, all);
+  return r && r.bad < 1000 ? r : null;
+}
+function showFill(r) {
+  $('dec-in').value = '';
+  $('dec-out').innerHTML = (r.text ? r.text.replace(/</g,'&lt;') : '(nothing to read)') +
+    `<div class="muted" style="font-weight:400">Painting fill found: ${r.P.artist}, ${r.P.title}, ${r.P.regions[r.rn].label.toLowerCase()} · ${SCRIPT[r.lang]}, cells of ${r.s} px, read ${DIRS[r.dir].toLowerCase()}</div>`;
+}
+function readUpload(img, name) {
+  const f = readFill(img, name); if (f) { showFill(f); return f; }
+  const g = readImage(img);
+  if (!g) { $('dec-out').textContent = 'Could not find a Mondrian Code grid in this image.'; return null; }
+  $('dec-in').value = codeString(g.cells, g.W, g.H); runDecode(); return g;
+}
 $('enc-go').onclick = runEncode;
 ['enc-cell', 'enc-dir', 'enc-fmt', 'enc-style', 'enc-white'].forEach(id => $(id).onchange = runEncode);
 $('dec-go').onclick = runDecode;
-$('enc-dl').onclick = savePng; $('enc-line-dl').onclick = savePng;
+['enc-sq-dl', 'enc-dl', 'enc-line-dl', 'enc-fill-dl'].forEach(id => $(id).onclick = savePng);
+$('dec-paint').innerHTML += PAINTINGS.map(P => `<option value="${P.id}">${P.artist}, ${P.title}</option>`).join('');
 $('dec-file').onchange = e => {
   const f = e.target.files[0]; if (!f) return;
-  const img = new Image(); img.onload = () => {
-    const g = readImage(img);
-    if (!g) { $('dec-out').textContent = 'Could not find a Mondrian Code grid in this image.'; return; }
-    $('dec-in').value = codeString(g.cells, g.W, g.H); runDecode();
-  }; img.src = URL.createObjectURL(f);
+  const img = new Image(); img.onload = () => readUpload(img, f.name); img.src = URL.createObjectURL(f);
 };
 fillTables(); runEncode();
-document.querySelectorAll('.ex-img').forEach(cv => { const { cells, lang } = encode(cv.dataset.text);
+document.querySelectorAll('.ex-img').forEach(cv => { if (cv.dataset.fill) return; const { cells, lang } = encode(cv.dataset.text);
   const st = cv.dataset.style || 'grid', a = [cells, lang, cv.dataset.dir || 'LR', cv.dataset.fmt || 'square'];
   const { grid, W, H } = st === 'composition' ? compose(...a) : square(...a); paint(cv, grid, W, H, 60, st); cv.classList.toggle('comp', st === 'composition'); });
+const exFold = document.querySelector('.ex-img[data-fill]').closest('details');   // the painting-fill example loads its painting when the examples open
+exFold.addEventListener('toggle', () => { if (!exFold.open) return;
+  document.querySelectorAll('.ex-img[data-fill]').forEach(async cv => { if (cv.dataset.done) return; cv.dataset.done = 1;
+    const P = paintingById(cv.dataset.fill), { cells, lang } = encode(cv.dataset.text), F = fillLayout(cells, lang, P, cv.dataset.region);
+    paintFill(cv, await loadPainting(P), F); }); });
 </script>
 </body>
 </html>
